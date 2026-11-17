@@ -4,11 +4,13 @@ Global Solution 2026/2 · CitizenTech · **Disruptive Architectures: IoT, IoB & 
 
 ## Integrantes
 
-| RM | Nome |
-|---|---|
-| RM00000 | Nome completo |
-| RM00000 | Nome completo |
-| RM00000 | Nome completo |
+| RM | Nome | Turma |
+|---|---|---|
+| RM563665 | João Victor Vendrameto | 2TDSPV |
+| RM564205 | Nicolas de Oliveira Jacob | 2TDSPX |
+| RM566552 | Gabriel Ambrósio Saraiva | 2TDSPV |
+| RM562308 | Vinicius Romaguera Cardozo | 2TDSPX |
+| RM561450 | Yuri Fuzinatto Garzoli Barreto | 2TDSPX |
 
 ## O problema
 
