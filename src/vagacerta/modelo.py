@@ -35,6 +35,19 @@ from .dados import ATRIBUTOS, montar_atributos
 # O limiar de "risco alto" é escolhido para caber nessa capacidade.
 CAPACIDADE_REFORCO = 0.30
 
+# Cota mínima por faixa etária: em cada faixa, pelo menos esta fração das consultas de maior risco
+# DA PRÓPRIA FAIXA recebe reforço. Sem isso, o limiar único quase não alcança idosos (ver evidencias).
+COTA_MINIMA_FAIXA = 0.15
+FAIXAS_ETARIAS = [(-1, 11, "0-11"), (11, 17, "12-17"), (17, 29, "18-29"), (29, 59, "30-59"), (59, 200, "60+")]
+
+
+def faixa_etaria(idades) -> np.ndarray:
+    idades = np.asarray(idades, dtype=float)
+    saida = np.empty(len(idades), dtype=object)
+    for ini, fim, nome in FAIXAS_ETARIAS:
+        saida[(idades > ini) & (idades <= fim)] = nome
+    return saida
+
 
 def candidatos() -> dict:
     return {
@@ -79,14 +92,26 @@ class ModeloFalta:
     limiar_alto: float
     limiar_medio: float
     metadados: dict = field(default_factory=dict)
+    limiares_faixa: dict = field(default_factory=dict)  # limiar de "alto" por faixa etária (cota mínima)
 
     def probabilidade(self, x: pd.DataFrame) -> np.ndarray:
         return self.estimador.predict_proba(x[ATRIBUTOS])[:, 1]
 
-    def faixa(self, prob: float) -> str:
-        if prob >= self.limiar_alto:
+    def limiar_para(self, idade: float) -> float:
+        return self.limiares_faixa.get(faixa_etaria([idade])[0], self.limiar_alto)
+
+    def sinalizar(self, x: pd.DataFrame, prob: np.ndarray, com_cota: bool = True) -> np.ndarray:
+        """True = recebe lembrete reforçado."""
+        if not com_cota:
+            return prob >= self.limiar_alto
+        limiares = np.array([self.limiar_para(i) for i in x["idade"]])
+        return prob >= limiares
+
+    def faixa(self, prob: float, idade: float | None = None) -> str:
+        limiar = self.limiar_para(idade) if idade is not None else self.limiar_alto
+        if prob >= limiar:
             return "alto"
-        if prob >= self.limiar_medio:
+        if prob >= min(self.limiar_medio, limiar):
             return "medio"
         return "baixo"
 
@@ -97,15 +122,15 @@ class ModeloFalta:
         for (_, linha), p in zip(x.iterrows(), probs):
             saida.append({
                 "probabilidade_falta": round(float(p), 4),
-                "faixa_risco": self.faixa(float(p)),
+                "faixa_risco": self.faixa(float(p), float(linha["idade"])),
                 "sinais": sinais_de_risco(linha),
             })
         return saida
 
     def salvar(self) -> None:
         config.DIR_MODELOS.mkdir(parents=True, exist_ok=True)
-        joblib.dump({"estimador": self.estimador, "nome": self.nome,
-                     "limiar_alto": self.limiar_alto, "limiar_medio": self.limiar_medio},
+        joblib.dump({"estimador": self.estimador, "nome": self.nome, "limiar_alto": self.limiar_alto,
+                     "limiar_medio": self.limiar_medio, "limiares_faixa": self.limiares_faixa},
                     config.ARQ_MODELO)
         config.ARQ_METADADOS.write_text(json.dumps(self.metadados, indent=2, ensure_ascii=False), encoding="utf-8")
 
@@ -115,7 +140,7 @@ class ModeloFalta:
             raise FileNotFoundError("Modelo não treinado. Rode: python scripts/treinar.py")
         d = joblib.load(config.ARQ_MODELO)
         meta = json.loads(config.ARQ_METADADOS.read_text(encoding="utf-8")) if config.ARQ_METADADOS.exists() else {}
-        return cls(d["estimador"], d["nome"], d["limiar_alto"], d["limiar_medio"], meta)
+        return cls(d["estimador"], d["nome"], d["limiar_alto"], d["limiar_medio"], meta, d.get("limiares_faixa", {}))
 
 
 def sinais_de_risco(linha: pd.Series) -> list[str]:
@@ -162,6 +187,21 @@ def treinar(treino: pd.DataFrame, validacao: pd.DataFrame, teste: pd.DataFrame, 
     prob_va = est.predict_proba(x_va)[:, 1]
     limiar_medio = float(np.quantile(prob_va, 0.40))  # 40% de menor risco ficam em "baixo"
 
+    # Cota mínima por faixa etária, calibrada na validação (o teste continua sem influenciar nada).
+    faixas_va = faixa_etaria(x_va["idade"])
+    limiares_faixa = {
+        g: min(limiar_alto, float(np.quantile(prob_va[faixas_va == g], 1 - COTA_MINIMA_FAIXA)))
+        for g in np.unique(faixas_va)
+    }
+    modelo = ModeloFalta(est, escolhido, limiar_alto, limiar_medio, {}, limiares_faixa)
+    prob_te = modelo.probabilidade(x_te)
+    flag_cota = modelo.sinalizar(x_te, prob_te, com_cota=True)
+    politica_cota = {
+        "fracao_sinalizada": round(float(flag_cota.mean()), 4),
+        "recall": round(float(flag_cota[y_te == 1].mean()), 4),
+        "precisao": round(float(y_te[flag_cota].mean()), 4) if flag_cota.any() else None,
+    }
+
     meta = {
         "modelo": escolhido,
         "treinado_em": date.today().isoformat(),
@@ -177,20 +217,24 @@ def treinar(treino: pd.DataFrame, validacao: pd.DataFrame, teste: pd.DataFrame, 
             "teste": [str(teste["data_consulta"].min().date()), str(teste["data_consulta"].max().date())],
         },
         "metricas_teste": relatorio["teste"][escolhido],
+        "cota_minima_faixa": COTA_MINIMA_FAIXA,
+        "limiares_faixa": limiares_faixa,
+        "metricas_teste_com_cota": politica_cota,
     }
-    return ModeloFalta(est, escolhido, limiar_alto, limiar_medio, meta), relatorio
+    modelo.metadados = meta
+    return modelo, relatorio
 
 
 def avaliar_por_grupo(modelo: ModeloFalta, teste: pd.DataFrame) -> dict:
-    """Recall e taxa de sinalização por gênero e faixa etária: verifica se o modelo trata grupos de forma desigual."""
+    """Recall e taxa de sinalização por gênero e faixa etária, com limiar único e com cota mínima por faixa."""
     x = montar_atributos(teste)
     prob = modelo.probabilidade(x)
     df = pd.DataFrame({
         "y": teste["faltou"].to_numpy(),
-        "pred": (prob >= modelo.limiar_alto).astype(int),
+        "pred": modelo.sinalizar(x, prob, com_cota=False).astype(int),
+        "pred_cota": modelo.sinalizar(x, prob, com_cota=True).astype(int),
         "genero": np.where(x["genero_f"] == 1, "F", "M"),
-        "faixa_etaria": pd.cut(x["idade"], [-1, 11, 17, 29, 59, 200],
-                               labels=["0-11", "12-17", "18-29", "30-59", "60+"]).astype(str),
+        "faixa_etaria": faixa_etaria(x["idade"]),
     })
     saida = {}
     for col in ["genero", "faixa_etaria"]:
@@ -202,5 +246,7 @@ def avaliar_por_grupo(modelo: ModeloFalta, teste: pd.DataFrame) -> dict:
                 "taxa_falta_real": round(float(g["y"].mean()), 4),
                 "fracao_sinalizada": round(float(g["pred"].mean()), 4),
                 "recall": round(float(faltas["pred"].mean()), 4) if len(faltas) else None,
+                "fracao_sinalizada_cota": round(float(g["pred_cota"].mean()), 4),
+                "recall_cota": round(float(faltas["pred_cota"].mean()), 4) if len(faltas) else None,
             }
     return saida

@@ -37,7 +37,7 @@
       "avisos": [
         "sem credencial de IA configurada; usado template"
       ],
-      "latencia_ms": 1,
+      "latencia_ms": 3,
       "sms": "Olá, Marilene! Vaga Certa: ULTRASSONOGRAFIA DE ABDOMEN SUPERIOR em sábado, 21/11, às 07:30, Policlínica Centro. Jejum de 6 a 8 horas antes do exame. Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa.",
       "app": "Olá, Marilene! Sua vaga para ULTRASSONOGRAFIA DE ABDOMEN SUPERIOR está marcada:\n- Quando: sábado, 21/11, às 07:30\n- Onde: Policlínica Centro, Rua Exemplo, 100\nComo se preparar:\n- Jejum de 6 a 8 horas antes do exame. Pequenos goles de água podem ser liberados; confirme com a unidade.\n- Se a unidade indicar, siga a dieta leve ou o remédio contra gases no dia anterior.\n- No abdome total, a bexiga também é avaliada: siga a orientação da unidade sobre beber água antes.\nLeve: Pedido médico, documento com foto e Cartão SUS; Ultrassons e exames anteriores do abdome.\nResponda SIM para confirmar. Se não puder ir, responda NAO: a vaga vai na hora para a próxima pessoa da fila.",
       "tamanho_sms": 222
@@ -178,7 +178,7 @@
       "avisos": [
         "sem credencial de IA configurada; usado template"
       ],
-      "latencia_ms": 0,
+      "latencia_ms": 1,
       "sms": "Olá, Marilene! Vaga Certa: CONSULTA EM OFTALMOLOGIA em sábado, 21/11, às 13:30, Policlínica Centro. Não há preparo especial para a consulta, a não ser que o encaminhamento diga o contrário. Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa.",
       "app": "Olá, Marilene! Sua vaga para CONSULTA EM OFTALMOLOGIA está marcada:\n- Quando: sábado, 21/11, às 13:30\n- Onde: Policlínica Centro, Rua Exemplo, 100\nComo se preparar:\n- Não há preparo especial para a consulta, a não ser que o encaminhamento diga o contrário.\n- Chegue com a antecedência pedida pela unidade, em geral 15 a 30 minutos antes.\n- Anote as dúvidas e os sintomas que quer contar ao médico.\nLeve: Documento com foto; Cartão Nacional de Saúde (Cartão SUS) ou número do CPF; Encaminhamento ou guia de referência da UBS.\nResponda SIM para confirmar. Se não puder ir, responda NAO: a vaga vai na hora para a próxima pessoa da fila.",
       "tamanho_sms": 263
@@ -252,7 +252,7 @@
         "sem credencial de IA configurada; usado template",
         "orientação recuperada com confiança baixa; template sem preparo específico"
       ],
-      "latencia_ms": 3,
+      "latencia_ms": 0,
       "sms": "Olá, Marilene! Vaga Certa: ENDOSCOPIA COM TESTE DE UREASE em sábado, 21/11, às 16:30, Policlínica Centro. Siga as orientações do pedido médico e tire dúvidas na unidade. Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa.",
       "app": "Olá, Marilene! Sua vaga para ENDOSCOPIA COM TESTE DE UREASE está marcada:\n- Quando: sábado, 21/11, às 16:30\n- Onde: Policlínica Centro, Rua Exemplo, 100\nSiga as orientações de preparo do pedido médico. Em caso de dúvida, fale com a unidade.\nResponda SIM para confirmar. Se não puder ir, responda NAO: a vaga vai na hora para a próxima pessoa da fila.",
       "tamanho_sms": 243

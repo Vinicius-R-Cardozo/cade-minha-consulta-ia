@@ -1,7 +1,7 @@
 {
   "modelo": "gradient_boosting",
   "treinado_em": "2026-11-16",
-  "origem_dados": "sintetica",
+  "origem_dados": "kaggle_medical_appointment_no_shows_vitoria_2016",
   "atributos": [
     "idade",
     "genero_f",
@@ -19,20 +19,20 @@
     "taxa_faltas_anteriores"
   ],
   "capacidade_reforco": 0.3,
-  "limiar_alto": 0.6012,
-  "limiar_medio": 0.3877,
+  "limiar_alto": 0.639,
+  "limiar_medio": 0.4676,
   "tamanhos": {
-    "treino": 18988,
-    "validacao": 5225,
-    "teste": 5787
+    "treino": 67357,
+    "validacao": 16710,
+    "teste": 26449
   },
   "periodos": {
     "treino": [
-      "2016-04-28",
-      "2016-05-24"
+      "2016-04-29",
+      "2016-05-20"
     ],
     "validacao": [
-      "2016-05-25",
+      "2016-05-24",
       "2016-05-31"
     ],
     "teste": [
@@ -41,21 +41,34 @@
     ]
   },
   "metricas_teste": {
-    "n": 5787,
-    "taxa_falta_real": 0.2081,
-    "roc_auc": 0.7334,
-    "pr_auc": 0.3804,
-    "brier": 0.2086,
-    "limiar": 0.6012,
-    "recall": 0.5507,
-    "precisao": 0.3786,
-    "f1": 0.4487,
-    "fracao_sinalizada": 0.3026,
+    "n": 26449,
+    "taxa_falta_real": 0.1846,
+    "roc_auc": 0.7304,
+    "pr_auc": 0.3426,
+    "brier": 0.2177,
+    "limiar": 0.639,
+    "recall": 0.4666,
+    "precisao": 0.3379,
+    "f1": 0.392,
+    "fracao_sinalizada": 0.2549,
     "matriz_confusao": {
-      "vn": 3495,
-      "fp": 1088,
-      "fn": 541,
-      "vp": 663
+      "vn": 17104,
+      "fp": 4463,
+      "fn": 2604,
+      "vp": 2278
     }
+  },
+  "cota_minima_faixa": 0.15,
+  "limiares_faixa": {
+    "0-11": 0.6389672097756813,
+    "12-17": 0.6389672097756813,
+    "18-29": 0.6389672097756813,
+    "30-59": 0.6389672097756813,
+    "60+": 0.570429780067501
+  },
+  "metricas_teste_com_cota": {
+    "fracao_sinalizada": 0.2676,
+    "recall": 0.4779,
+    "precisao": 0.3296
   }
 }

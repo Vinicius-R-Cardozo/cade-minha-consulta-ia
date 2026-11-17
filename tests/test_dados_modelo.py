@@ -70,6 +70,16 @@ def test_previsao_faixas_e_sinais(modelo_treinado):
     assert any("faltou 3x" in s for s in alto["sinais"])
 
 
+def test_cota_por_faixa_so_acrescenta_sinalizacoes(modelo_treinado, base_sintetica):
+    modelo, _ = modelo_treinado
+    assert modelo.limiares_faixa
+    assert all(lim <= modelo.limiar_alto for lim in modelo.limiares_faixa.values())
+    x = montar_atributos(preparar_base(base_sintetica))
+    prob = modelo.probabilidade(x)
+    unico, cota = modelo.sinalizar(x, prob, com_cota=False), modelo.sinalizar(x, prob, com_cota=True)
+    assert (cota | ~unico).all()  # todo sinalizado pelo limiar único continua sinalizado com a cota
+
+
 def test_carregar_sem_modelo_da_erro_claro(tmp_path, monkeypatch):
     from vagacerta import config
     from vagacerta.modelo import ModeloFalta

@@ -116,7 +116,8 @@ def relatorio_md(meta, comparacao, grupos, importancia, origem) -> str:
         "## Comparação no conjunto de teste",
         "",
         f"Limiar escolhido na validação para sinalizar as {int(meta['capacidade_reforco'] * 100)}% "
-        "consultas de maior risco (capacidade de reforço da equipe).",
+        "consultas de maior risco (capacidade de reforço da equipe). No teste, como a distribuição muda de uma "
+        f"semana para outra, o mesmo limiar sinalizou {t['fracao_sinalizada']:.0%}.",
         "",
         "| Modelo | ROC-AUC | PR-AUC | Recall | Precisão | F1 | Brier |",
         "|---|---|---|---|---|---|---|",
@@ -151,13 +152,27 @@ def relatorio_md(meta, comparacao, grupos, importancia, origem) -> str:
         "O modelo só decide **a intensidade do lembrete**, nunca o acesso à consulta. Mesmo assim, conferimos "
         "se algum grupo é sinalizado de forma muito diferente da sua taxa real de falta.",
         "",
-        "| Grupo | Consultas | Taxa real de falta | Fração sinalizada | Recall |",
-        "|---|---|---|---|---|",
+        "Duas políticas no mesmo modelo:",
+        "",
+        "- **limiar único**: as consultas de maior risco no geral;",
+        f"- **cota mínima por faixa etária**: além disso, em cada faixa as {meta['cota_minima_faixa']:.0%} "
+        "de maior risco da própria faixa recebem reforço (limiares calibrados na validação). **É a política em uso na API.**",
+        "",
+        "| Grupo | Consultas | Taxa real de falta | Sinalizada (único) | Recall (único) | Sinalizada (cota) | Recall (cota) |",
+        "|---|---|---|---|---|---|---|",
     ]
+    fmt = lambda v: f"{v:.1%}" if v is not None else "-"  # noqa: E731
     for dim, valores in grupos.items():
         for g, v in valores.items():
-            partes.append(f"| {dim}: {g} | {v['n']} | {v['taxa_falta_real']:.1%} | "
-                          f"{v['fracao_sinalizada']:.1%} | {v['recall'] if v['recall'] is not None else '-'} |")
+            partes.append(f"| {dim}: {g} | {v['n']} | {v['taxa_falta_real']:.1%} | {fmt(v['fracao_sinalizada'])} | "
+                          f"{fmt(v['recall'])} | {fmt(v['fracao_sinalizada_cota'])} | {fmt(v['recall_cota'])} |")
+    c = meta["metricas_teste_com_cota"]
+    partes += [
+        "",
+        f"No total, com a cota: sinaliza {c['fracao_sinalizada']:.1%} das consultas, recall {c['recall']:.1%}, "
+        f"precisão {c['precisao']:.1%} (limiar único: {t['fracao_sinalizada']:.1%}, {t['recall']:.1%}, "
+        f"{t['precisao']:.1%}).",
+    ]
     return "\n".join(partes) + "\n"
 
 

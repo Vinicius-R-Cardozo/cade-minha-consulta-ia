@@ -89,7 +89,7 @@ Fluxo da mensagem, passo a passo:
 | Python 3.11+, scikit-learn, pandas | Padrão para ML tabular; treina em segundos num notebook comum. |
 | **Gradient boosting** (HistGradientBoosting) vs regressão logística vs baseline | Os três são treinados. Ganha o de maior PR-AUC na validação. O boosting capta efeitos não lineares, como antecedência e faixa etária. A regressão logística fica como referência interpretável. |
 | Divisão **temporal** treino/validação/teste | Em produção o modelo prevê o futuro com dados do passado. Uma divisão aleatória daria métricas otimistas. |
-| Limiar por **capacidade** (30% das consultas) | O gestor não liga para todo mundo. O limiar é o ponto em que a equipe consegue reforçar 30% das consultas, e o recall diz quantas faltas isso cobre. |
+| Limiar por **capacidade** (30% das consultas) + **cota por faixa etária** | O gestor não liga para todo mundo. O limiar é o ponto em que a equipe consegue reforçar 30% das consultas, e o recall diz quantas faltas isso cobre. A cota garante que cada faixa etária receba pelo menos 15% de reforço (ver avaliação). |
 | **RAG com TF-IDF de caracteres + cobertura de palavras** | A base é pequena e as buscas são nomes de exame com abreviação e erro de digitação ("USG", "ultrasom"). Roda offline, sem custo e sem mandar dados para fora. A cobertura de palavras evita casar "eletroencefalograma" com "eletrocardiograma". |
 | **Claude Opus 5.5**, esforço `low`, saída em **JSON com schema** | O modelo é forte em seguir regras e escrever em português simples. Esforço baixo basta para textos curtos e reduz custo e latência. O schema garante JSON válido. O fallback no servidor (`fallbacks: "default"`) cobre recusas. |
 | **Template** como plano B | O edital pede solução útil "fora do cenário ideal de conectividade". Sem chave ou sem internet, o cidadão continua recebendo mensagem correta. |
@@ -125,7 +125,7 @@ cp .env.example .env
 
 Opcional: preencha `ANTHROPIC_API_KEY` no `.env` para ligar a IA generativa. Sem ela, tudo funciona com o template.
 
-Opcional: baixe `KaggleV2-May-2016.csv` (link acima) para `data/raw/`. Sem ele, o treino usa a base sintética.
+O modelo versionado em `modelos/` já foi treinado com a base do Kaggle. Para retreinar, baixe `KaggleV2-May-2016.csv` (ver [data/README.md](data/README.md)) para `data/raw/`; sem ele, o treino usa a base sintética.
 
 ```bash
 python scripts/treinar.py
@@ -161,9 +161,24 @@ Todos os resultados são gerados pelos scripts e ficam em [evidencias/](evidenci
 Métricas: ROC-AUC, **PR-AUC** (a classe "faltou" é minoritária), recall e precisão no limiar de capacidade, Brier
 (calibração). Também comparamos com o baseline, a importância por permutação e o comportamento por gênero e faixa etária.
 
-> Os números versionados hoje vêm da **base sintética** e só provam que o pipeline funciona
-> (gradient boosting: ROC-AUC 0,73, PR-AUC 0,38 contra 0,21 do baseline; contatando 30% das consultas, cobre 55% das faltas).
-> Com o CSV do Kaggle em `data/raw/`, `python scripts/treinar.py` regenera o relatório com os números reais.
+Base real do Kaggle, 110.516 consultas depois da limpeza. Treino de 29/04 a 20/05/2016, validação de 24 a 31/05
+e teste de 01 a 08/06 (26.449 consultas, 18,5% de faltas).
+
+| Modelo (conjunto de teste) | ROC-AUC | PR-AUC | Recall | Precisão |
+|---|---|---|---|---|
+| Baseline (taxa média) | 0,500 | 0,185 | — | — |
+| Regressão logística | 0,724 | 0,333 | 49,1% | 31,6% |
+| **Gradient boosting (escolhido)** | **0,730** | **0,343** | 46,7% | 33,8% |
+
+Como ler os números:
+
+- **Ganho:** contatando 25% das consultas (as de maior risco), a equipe alcança **47% das faltas**, quase o dobro do que alcançaria escolhendo ao acaso. Entre as consultas sinalizadas, 34% faltam, contra 18,5% na média.
+- **O que mais pesa:** a antecedência do agendamento, de longe. Depois vêm a idade e o histórico de faltas do paciente. Hipertensão, diabetes e o número de consultas anteriores praticamente não ajudam.
+- **Equidade:** com um limiar único, o modelo quase não alcança idosos. Só 5,5% das consultas de quem tem 60 anos ou mais são sinalizadas, e só 11% das faltas desse grupo são cobertas, embora a taxa de falta deles seja de 13,9%. Já os jovens de 12 a 29 anos ficam com cerca de 47% de sinalização.
+  - Por isso a API usa uma **cota mínima por faixa etária**: em cada faixa, os 15% de maior risco recebem reforço.
+  - Com a cota, o recall dos idosos sobe para **18,5%**. O custo total é de +1,3 ponto percentual de contatos (26,8%), e o recall geral ainda sobe um pouco (47,8%).
+
+![curvas](evidencias/modelo_curvas.png)
 
 ### RAG — [evidencias/rag_avaliacao.md](evidencias/rag_avaliacao.md)
 
@@ -200,8 +215,8 @@ O esperado é recuperar parte das omissões do template, porque a IA verifica a 
 
 ### Testes automatizados
 
-`python -m pytest`: 45 testes. Eles cobrem a limpeza de dados, o **histórico sem vazamento**, a divisão temporal e o
-modelo melhor que o baseline. No RAG, cobrem exames encontrados e não inventados. Na geração, cobrem o template, o
+`python -m pytest`: 46 testes. Eles cobrem a limpeza de dados, o **histórico sem vazamento**, a divisão temporal e o
+modelo melhor que o baseline, além de checarem que a cota por faixa etária só acrescenta sinalizações. No RAG, cobrem exames encontrados e não inventados. Na geração, cobrem o template, o
 bloqueio de diagnóstico, PIX e senha, a injeção e cinco falhas da IA simuladas: rede, JSON inválido, recusa, corte por
 tokens e item inventado. Na API, cobrem entradas inválidas (422), consulta passada, lote vazio ou grande demais e o token de serviço.
 
@@ -211,12 +226,15 @@ tokens e item inventado. Na API, cobrem entradas inválidas (422), consulta pass
 - **Dado sensível (LGPD art. 11):** o projeto usa dados anonimizados (Kaggle) e sintéticos. Nenhum dado real de paciente está no repositório.
 - **Credenciais:** só em `.env`, que está no `.gitignore`. O `.env.example` não tem valores.
 - **Sem decisão automática sobre acesso:** o risco só muda a intensidade do lembrete. Ninguém perde a vaga por ter risco alto.
-- **Equidade:** o bairro foi retirado do modelo para não penalizar regiões. O relatório do modelo mostra sinalização e recall por gênero e faixa etária, para acompanhar diferenças.
+- **Equidade:** o bairro foi retirado do modelo para não penalizar regiões. O relatório mostra sinalização e recall por gênero e faixa etária. Gênero ficou equilibrado (recall de 47,8% e 47,7%). A diferença por idade foi encontrada e reduzida com a cota mínima por faixa.
 - **Proteção contra golpe:** mensagens com link, PIX, pedido de senha ou de pagamento são bloqueadas.
 
 ## Limitações
 
-- **Modelo:** a base de Vitória é de 2016, de uma cidade só, e cobre cerca de seis semanas. Hábitos e canais de lembrete mudaram (hoje há WhatsApp). O modelo precisa ser retreinado com dados do município que adotar o serviço antes de qualquer uso real. A previsão de falta é naturalmente difícil: espere ROC-AUC na faixa de 0,7, não perto de 1.
+- **Modelo:** a base de Vitória é de 2016, de uma cidade só, e cobre cerca de seis semanas. Hábitos e canais de lembrete mudaram (hoje há WhatsApp). O modelo precisa ser retreinado com dados do município que adotar o serviço antes de qualquer uso real.
+- **Desempenho:** ROC-AUC de 0,73 mostra que o modelo separa faltas bem melhor que o acaso, mas ele erra bastante: 2 de cada 3 consultas sinalizadas acabam comparecendo. Isso é aceitável porque o custo de um erro é só um lembrete a mais.
+- **Mudança de distribuição:** o limiar calibrado para 30% sinalizou 25% na semana de teste. Em produção, ele precisa ser recalibrado com frequência.
+- **Idosos:** mesmo com a cota, a cobertura das faltas de quem tem 60 anos ou mais (18,5%) fica abaixo da média. As faltas desse grupo provavelmente dependem de fatores que a base não tem, como transporte e mobilidade.
 - **Atributos ausentes:** a base não tem distância até a unidade, transporte, especialidade nem clima, fatores que influenciam a falta.
 - **RAG:** a base tem 16 documentos. Exames fora dela recebem mensagem sem preparo específico, e parte dos exames que estão nela pode ficar sem preparo no modo template (erro seguro). O conteúdo é de exemplo e precisa da revisão técnica da secretaria.
 - **IA generativa:** depende de internet e de chave paga. Pode errar o tom ou omitir um cuidado; por isso a saída passa por validação, mas a validação não garante que todo cuidado importante foi citado. A mensagem sempre orienta a seguir o pedido médico.

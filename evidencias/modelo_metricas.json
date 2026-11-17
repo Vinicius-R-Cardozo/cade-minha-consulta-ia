@@ -2,7 +2,7 @@
   "metadados": {
     "modelo": "gradient_boosting",
     "treinado_em": "2026-11-16",
-    "origem_dados": "sintetica",
+    "origem_dados": "kaggle_medical_appointment_no_shows_vitoria_2016",
     "atributos": [
       "idade",
       "genero_f",
@@ -20,20 +20,20 @@
       "taxa_faltas_anteriores"
     ],
     "capacidade_reforco": 0.3,
-    "limiar_alto": 0.6012,
-    "limiar_medio": 0.3877,
+    "limiar_alto": 0.639,
+    "limiar_medio": 0.4676,
     "tamanhos": {
-      "treino": 18988,
-      "validacao": 5225,
-      "teste": 5787
+      "treino": 67357,
+      "validacao": 16710,
+      "teste": 26449
     },
     "periodos": {
       "treino": [
-        "2016-04-28",
-        "2016-05-24"
+        "2016-04-29",
+        "2016-05-20"
       ],
       "validacao": [
-        "2016-05-25",
+        "2016-05-24",
         "2016-05-31"
       ],
       "teste": [
@@ -42,134 +42,147 @@
       ]
     },
     "metricas_teste": {
-      "n": 5787,
-      "taxa_falta_real": 0.2081,
-      "roc_auc": 0.7334,
-      "pr_auc": 0.3804,
-      "brier": 0.2086,
-      "limiar": 0.6012,
-      "recall": 0.5507,
-      "precisao": 0.3786,
-      "f1": 0.4487,
-      "fracao_sinalizada": 0.3026,
+      "n": 26449,
+      "taxa_falta_real": 0.1846,
+      "roc_auc": 0.7304,
+      "pr_auc": 0.3426,
+      "brier": 0.2177,
+      "limiar": 0.639,
+      "recall": 0.4666,
+      "precisao": 0.3379,
+      "f1": 0.392,
+      "fracao_sinalizada": 0.2549,
       "matriz_confusao": {
-        "vn": 3495,
-        "fp": 1088,
-        "fn": 541,
-        "vp": 663
+        "vn": 17104,
+        "fp": 4463,
+        "fn": 2604,
+        "vp": 2278
       }
+    },
+    "cota_minima_faixa": 0.15,
+    "limiares_faixa": {
+      "0-11": 0.6389672097756813,
+      "12-17": 0.6389672097756813,
+      "18-29": 0.6389672097756813,
+      "30-59": 0.6389672097756813,
+      "60+": 0.570429780067501
+    },
+    "metricas_teste_com_cota": {
+      "fracao_sinalizada": 0.2676,
+      "recall": 0.4779,
+      "precisao": 0.3296
     }
   },
   "comparacao": {
     "validacao": {
       "baseline_taxa_media": {
-        "n": 5225,
-        "taxa_falta_real": 0.2186,
+        "n": 16710,
+        "taxa_falta_real": 0.193,
         "roc_auc": 0.5,
-        "pr_auc": 0.2186,
-        "brier": 0.1709,
-        "limiar": 0.2099,
+        "pr_auc": 0.193,
+        "brier": 0.1561,
+        "limiar": 0.2109,
         "recall": 1.0,
-        "precisao": 0.2186,
-        "f1": 0.3587,
+        "precisao": 0.193,
+        "f1": 0.3236,
         "fracao_sinalizada": 1.0,
         "matriz_confusao": {
           "vn": 0,
-          "fp": 4083,
+          "fp": 13485,
           "fn": 0,
-          "vp": 1142
+          "vp": 3225
         }
       },
       "regressao_logistica": {
-        "n": 5225,
-        "taxa_falta_real": 0.2186,
-        "roc_auc": 0.7373,
-        "pr_auc": 0.4049,
-        "brier": 0.2077,
-        "limiar": 0.587,
-        "recall": 0.5412,
-        "precisao": 0.3941,
-        "f1": 0.4561,
-        "fracao_sinalizada": 0.3001,
+        "n": 16710,
+        "taxa_falta_real": 0.193,
+        "roc_auc": 0.7331,
+        "pr_auc": 0.3553,
+        "brier": 0.2182,
+        "limiar": 0.6212,
+        "recall": 0.5237,
+        "precisao": 0.3369,
+        "f1": 0.4101,
+        "fracao_sinalizada": 0.3,
         "matriz_confusao": {
-          "vn": 3133,
-          "fp": 950,
-          "fn": 524,
-          "vp": 618
+          "vn": 10161,
+          "fp": 3324,
+          "fn": 1536,
+          "vp": 1689
         }
       },
       "gradient_boosting": {
-        "n": 5225,
-        "taxa_falta_real": 0.2186,
-        "roc_auc": 0.7415,
-        "pr_auc": 0.4155,
-        "brier": 0.2051,
-        "limiar": 0.6012,
-        "recall": 0.5438,
-        "precisao": 0.396,
-        "f1": 0.4583,
-        "fracao_sinalizada": 0.3001,
+        "n": 16710,
+        "taxa_falta_real": 0.193,
+        "roc_auc": 0.7406,
+        "pr_auc": 0.3572,
+        "brier": 0.2195,
+        "limiar": 0.639,
+        "recall": 0.551,
+        "precisao": 0.3545,
+        "f1": 0.4314,
+        "fracao_sinalizada": 0.3,
         "matriz_confusao": {
-          "vn": 3136,
-          "fp": 947,
-          "fn": 521,
-          "vp": 621
+          "vn": 10249,
+          "fp": 3236,
+          "fn": 1448,
+          "vp": 1777
         }
       }
     },
     "teste": {
       "baseline_taxa_media": {
-        "n": 5787,
-        "taxa_falta_real": 0.2081,
+        "n": 26449,
+        "taxa_falta_real": 0.1846,
         "roc_auc": 0.5,
-        "pr_auc": 0.2081,
-        "brier": 0.1648,
-        "limiar": 0.2099,
+        "pr_auc": 0.1846,
+        "brier": 0.1512,
+        "limiar": 0.2109,
         "recall": 1.0,
-        "precisao": 0.2081,
-        "f1": 0.3444,
+        "precisao": 0.1846,
+        "f1": 0.3116,
         "fracao_sinalizada": 1.0,
         "matriz_confusao": {
           "vn": 0,
-          "fp": 4583,
+          "fp": 21567,
           "fn": 0,
-          "vp": 1204
+          "vp": 4882
         }
       },
       "regressao_logistica": {
-        "n": 5787,
-        "taxa_falta_real": 0.2081,
-        "roc_auc": 0.7228,
-        "pr_auc": 0.3622,
-        "brier": 0.2123,
-        "limiar": 0.587,
-        "recall": 0.5174,
-        "precisao": 0.3637,
-        "f1": 0.4272,
-        "fracao_sinalizada": 0.296,
+        "n": 26449,
+        "taxa_falta_real": 0.1846,
+        "roc_auc": 0.7237,
+        "pr_auc": 0.3329,
+        "brier": 0.2225,
+        "limiar": 0.6212,
+        "recall": 0.491,
+        "precisao": 0.3159,
+        "f1": 0.3844,
+        "fracao_sinalizada": 0.2869,
         "matriz_confusao": {
-          "vn": 3493,
-          "fp": 1090,
-          "fn": 581,
-          "vp": 623
+          "vn": 16375,
+          "fp": 5192,
+          "fn": 2485,
+          "vp": 2397
         }
       },
       "gradient_boosting": {
-        "n": 5787,
-        "taxa_falta_real": 0.2081,
-        "roc_auc": 0.7334,
-        "pr_auc": 0.3804,
-        "brier": 0.2086,
-        "limiar": 0.6012,
-        "recall": 0.5507,
-        "precisao": 0.3786,
-        "f1": 0.4487,
-        "fracao_sinalizada": 0.3026,
+        "n": 26449,
+        "taxa_falta_real": 0.1846,
+        "roc_auc": 0.7304,
+        "pr_auc": 0.3426,
+        "brier": 0.2177,
+        "limiar": 0.639,
+        "recall": 0.4666,
+        "precisao": 0.3379,
+        "f1": 0.392,
+        "fracao_sinalizada": 0.2549,
         "matriz_confusao": {
-          "vn": 3495,
-          "fp": 1088,
-          "fn": 541,
-          "vp": 663
+          "vn": 17104,
+          "fp": 4463,
+          "fn": 2604,
+          "vp": 2278
         }
       }
     }
@@ -177,121 +190,135 @@
   "por_grupo": {
     "genero": {
       "F": {
-        "n": 3783,
-        "taxa_falta_real": 0.2083,
-        "fracao_sinalizada": 0.3077,
-        "recall": 0.5609
+        "n": 17314,
+        "taxa_falta_real": 0.1828,
+        "fracao_sinalizada": 0.2577,
+        "recall": 0.4667,
+        "fracao_sinalizada_cota": 0.271,
+        "recall_cota": 0.4784
       },
       "M": {
-        "n": 2004,
-        "taxa_falta_real": 0.2076,
-        "fracao_sinalizada": 0.2929,
-        "recall": 0.5312
+        "n": 9135,
+        "taxa_falta_real": 0.188,
+        "fracao_sinalizada": 0.2495,
+        "recall": 0.4665,
+        "fracao_sinalizada_cota": 0.2612,
+        "recall_cota": 0.477
       }
     },
     "faixa_etaria": {
       "0-11": {
-        "n": 792,
-        "taxa_falta_real": 0.1894,
-        "fracao_sinalizada": 0.3283,
-        "recall": 0.6
+        "n": 4768,
+        "taxa_falta_real": 0.1852,
+        "fracao_sinalizada": 0.3104,
+        "recall": 0.5413,
+        "fracao_sinalizada_cota": 0.3104,
+        "recall_cota": 0.5413
       },
       "12-17": {
-        "n": 645,
-        "taxa_falta_real": 0.2574,
-        "fracao_sinalizada": 0.4217,
-        "recall": 0.6747
+        "n": 1730,
+        "taxa_falta_real": 0.2451,
+        "fracao_sinalizada": 0.4711,
+        "recall": 0.7028,
+        "fracao_sinalizada_cota": 0.4711,
+        "recall_cota": 0.7028
       },
       "18-29": {
-        "n": 1265,
-        "taxa_falta_real": 0.2292,
-        "fracao_sinalizada": 0.419,
-        "recall": 0.669
+        "n": 3852,
+        "taxa_falta_real": 0.2318,
+        "fracao_sinalizada": 0.4663,
+        "recall": 0.7178,
+        "fracao_sinalizada_cota": 0.4663,
+        "recall_cota": 0.7178
       },
       "30-59": {
-        "n": 2084,
-        "taxa_falta_real": 0.2078,
-        "fracao_sinalizada": 0.251,
-        "recall": 0.4688
+        "n": 10828,
+        "taxa_falta_real": 0.1803,
+        "fracao_sinalizada": 0.218,
+        "recall": 0.4001,
+        "fracao_sinalizada_cota": 0.218,
+        "recall_cota": 0.4001
       },
       "60+": {
-        "n": 1001,
-        "taxa_falta_real": 0.1648,
-        "fracao_sinalizada": 0.1658,
-        "recall": 0.3879
+        "n": 5271,
+        "taxa_falta_real": 0.1385,
+        "fracao_sinalizada": 0.0548,
+        "recall": 0.1096,
+        "fracao_sinalizada_cota": 0.1188,
+        "recall_cota": 0.1849
       }
     }
   },
   "importancia": [
     {
       "atributo": "dias_antecedencia",
-      "importancia": 0.1597,
-      "desvio": 0.0026
+      "importancia": 0.1313,
+      "desvio": 0.0052
     },
     {
       "atributo": "idade",
-      "importancia": 0.0194,
-      "desvio": 0.0051
-    },
-    {
-      "atributo": "taxa_faltas_anteriores",
-      "importancia": 0.0093,
-      "desvio": 0.0011
-    },
-    {
-      "atributo": "sms_recebido",
-      "importancia": 0.0061,
+      "importancia": 0.0496,
       "desvio": 0.0029
     },
     {
-      "atributo": "bolsa_familia",
-      "importancia": 0.0043,
-      "desvio": 0.0016
-    },
-    {
-      "atributo": "dia_semana",
-      "importancia": 0.0028,
-      "desvio": 0.0016
+      "atributo": "taxa_faltas_anteriores",
+      "importancia": 0.0302,
+      "desvio": 0.0018
     },
     {
       "atributo": "faltas_anteriores",
-      "importancia": 0.0025,
-      "desvio": 0.0015
-    },
-    {
-      "atributo": "diabetes",
-      "importancia": 0.0016,
-      "desvio": 0.0005
+      "importancia": 0.0199,
+      "desvio": 0.0014
     },
     {
       "atributo": "genero_f",
-      "importancia": 0.0015,
+      "importancia": 0.0085,
+      "desvio": 0.0012
+    },
+    {
+      "atributo": "sms_recebido",
+      "importancia": 0.0051,
+      "desvio": 0.0011
+    },
+    {
+      "atributo": "dia_semana",
+      "importancia": 0.0044,
+      "desvio": 0.0026
+    },
+    {
+      "atributo": "bolsa_familia",
+      "importancia": 0.0028,
       "desvio": 0.0013
     },
     {
-      "atributo": "consultas_anteriores",
-      "importancia": 0.0015,
-      "desvio": 0.001
-    },
-    {
       "atributo": "alcoolismo",
-      "importancia": 0.0008,
-      "desvio": 0.0037
+      "importancia": 0.0014,
+      "desvio": 0.0011
     },
     {
       "atributo": "deficiencia",
-      "importancia": 0.0001,
-      "desvio": 0.0001
+      "importancia": 0.0007,
+      "desvio": 0.0003
     },
     {
       "atributo": "mesmo_dia",
-      "importancia": 0.0,
-      "desvio": 0.0
+      "importancia": -0.0,
+      "desvio": 0.0001
     },
     {
       "atributo": "hipertensao",
-      "importancia": -0.0003,
-      "desvio": 0.0007
+      "importancia": -0.0001,
+      "desvio": 0.0003
+    },
+    {
+      "atributo": "diabetes",
+      "importancia": -0.0012,
+      "desvio": 0.0038
+    },
+    {
+      "atributo": "consultas_anteriores",
+      "importancia": -0.0029,
+      "desvio": 0.0014
     }
   ]
 }
