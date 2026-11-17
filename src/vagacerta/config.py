@@ -20,15 +20,16 @@ DIR_EVIDENCIAS = RAIZ / "evidencias"
 ARQ_MODELO = DIR_MODELOS / "modelo_falta.joblib"
 ARQ_METADADOS = DIR_MODELOS / "modelo_falta.json"
 
-# IA generativa (Claude). Sem chave, o sistema usa o gerador de modelo fixo (template).
-LLM_MODELO = os.getenv("VAGACERTA_LLM_MODELO", "claude-opus-5-5")
-LLM_ESFORCO = os.getenv("VAGACERTA_LLM_ESFORCO", "low")
-LLM_FALLBACK_SERVIDOR = os.getenv("VAGACERTA_LLM_FALLBACK_SERVIDOR", "1") == "1"
-LLM_TIMEOUT_S = float(os.getenv("VAGACERTA_LLM_TIMEOUT_S", "30"))
+# IA generativa: workflow do n8n que chama o Google Gemini. A chave do Gemini fica no n8n, não aqui.
+# Se o n8n estiver desligado ou falhar, o sistema usa o gerador de modelo fixo (template).
+IA_MODO = os.getenv("VAGACERTA_IA", "n8n")  # "n8n" ou "desligada"
+N8N_WEBHOOK_URL = os.getenv("VAGACERTA_N8N_WEBHOOK_URL", "http://localhost:5678/webhook/vagacerta-mensagem")
+N8N_TOKEN = os.getenv("VAGACERTA_N8N_TOKEN", "")
+N8N_TIMEOUT_S = float(os.getenv("VAGACERTA_N8N_TIMEOUT_S", "40"))
 
 # Token para o backend Java chamar este serviço. Vazio = sem exigência (só para desenvolvimento).
 TOKEN_SERVICO = os.getenv("VAGACERTA_TOKEN_SERVICO", "")
 
 
-def tem_credencial_llm() -> bool:
-    return bool(os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN"))
+def ia_ligada() -> bool:
+    return IA_MODO == "n8n" and bool(N8N_WEBHOOK_URL)

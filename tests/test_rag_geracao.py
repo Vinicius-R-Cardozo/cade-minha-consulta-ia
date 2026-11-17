@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from vagacerta.geracao import DadosConsulta, GeradorClaude, Orquestrador, validar
+from vagacerta.geracao import DadosConsulta, GeradorN8n, Orquestrador, validar
 from vagacerta.rag import BaseConhecimento, Resultado
 
 DIA = date.today() + timedelta(days=4)
@@ -87,21 +87,22 @@ def test_validar_barra_conteudo_proibido(texto, trecho):
     assert validar(corpo, corpo, c)
 
 
-# ---------- gerador com IA (cliente falso: não chama a API) ----------
+# ---------- gerador com IA (webhook do n8n simulado: não chama a rede) ----------
 
-class ClienteFalso:
-    def __init__(self, resposta=None, erro=None, stop_reason="end_turn"):
-        self.resposta, self.erro, self.stop_reason = resposta, erro, stop_reason
+class N8nFalso:
+    """Imita httpx.post para o webhook do n8n."""
+
+    def __init__(self, resultado=None, erro=None, status=200, ok=True, msg_erro="Gemini terminou com SAFETY"):
+        self.resultado, self.erro, self.status, self.ok, self.msg_erro = resultado, erro, status, ok, msg_erro
         self.chamadas = []
-        self.beta = SimpleNamespace(messages=SimpleNamespace(create=self._create))
 
-    def _create(self, **kwargs):
-        self.chamadas.append(kwargs)
+    def __call__(self, url, json=None, headers=None, timeout=None):
+        self.chamadas.append({"url": url, "json": json, "headers": headers})
         if self.erro:
             raise self.erro
-        texto = self.resposta if isinstance(self.resposta, str) else json.dumps(self.resposta)
-        return SimpleNamespace(stop_reason=self.stop_reason, model="claude-opus-5-5",
-                               content=[SimpleNamespace(type="text", text=texto)])
+        corpo = ({"ok": True, "modelo": "gemini-teste", "resultado": self.resultado} if self.ok
+                 else {"ok": False, "erro": self.msg_erro})
+        return SimpleNamespace(status_code=self.status, json=lambda: corpo)
 
 
 def resposta_ia(corresponde=True, itens=None, extra=""):
@@ -117,56 +118,65 @@ def resposta_ia(corresponde=True, itens=None, extra=""):
     }
 
 
-def orq_com(cliente):
-    return Orquestrador(gerador_ia=GeradorClaude(cliente=cliente))
+def orq_com(post):
+    return Orquestrador(gerador_ia=GeradorN8n(url="http://n8n.teste/webhook/x", token="tk", post=post))
 
 
 def test_ia_feliz_usa_mensagem_da_ia_e_nao_envia_nome(base):
-    cliente = ClienteFalso(resposta_ia())
+    post = N8nFalso(resposta_ia())
     c = consulta()
-    msg = orq_com(cliente).gerar(c, base.buscar(c.procedimento, k=1), "Josefa")
-    assert msg.gerado_por == "claude-opus-5-5"
+    msg = orq_com(post).gerar(c, base.buscar(c.procedimento, k=1), "Josefa")
+    assert msg.gerado_por == "gemini:gemini-teste"
     assert msg.sms.startswith("Olá, Josefa!")
     assert msg.fontes == ["base_conhecimento/ultrassom-abdome.md"]
-    enviado = json.dumps(cliente.chamadas[0], default=str)
+    enviado = json.dumps(post.chamadas[0], default=str)
     assert "Josefa" not in enviado
-    assert cliente.chamadas[0]["output_config"]["format"]["type"] == "json_schema"
+    assert post.chamadas[0]["headers"]["X-Vagacerta-Token"] == "tk"
+    assert post.chamadas[0]["json"]["schema"]["type"] == "OBJECT"
+
+
+def test_resultado_em_texto_json_tambem_e_aceito(base):
+    post = N8nFalso(json.dumps(resposta_ia()))
+    c = consulta()
+    assert orq_com(post).gerar(c, base.buscar(c.procedimento, k=1)).gerado_por == "gemini:gemini-teste"
 
 
 def test_ia_que_inventa_item_e_reprovada(base):
-    cliente = ClienteFalso(resposta_ia(itens=["Preparo: tome 2 comprimidos de laxante"]))
+    post = N8nFalso(resposta_ia(itens=["Preparo: tome 2 comprimidos de laxante"]))
     c = consulta()
-    msg = orq_com(cliente).gerar(c, base.buscar(c.procedimento, k=1))
+    msg = orq_com(post).gerar(c, base.buscar(c.procedimento, k=1))
     assert msg.gerado_por == "template"
     assert any("fora do documento" in a for a in msg.avisos)
 
 
 def test_ia_que_diz_nao_corresponder_gera_sem_fonte(base):
-    cliente = ClienteFalso(resposta_ia(corresponde=False, itens=[]))
+    post = N8nFalso(resposta_ia(corresponde=False, itens=[]))
     c = consulta("TOMOGRAFIA DE ABDOME")
     doc = base.por_id("ultrassom-abdome")
-    msg = orq_com(cliente).gerar(c, [Resultado(doc, 0.46)])
-    assert msg.gerado_por == "claude-opus-5-5"
+    msg = orq_com(post).gerar(c, [Resultado(doc, 0.46)])
+    assert msg.gerado_por == "gemini:gemini-teste"
     assert msg.fontes == []
     assert any("não é deste procedimento" in a for a in msg.avisos)
 
 
 def test_ia_com_termo_proibido_cai_no_template(base):
-    cliente = ClienteFalso(resposta_ia(extra=" Pague a taxa no PIX."))
+    post = N8nFalso(resposta_ia(extra=" Pague a taxa no PIX."))
     c = consulta()
-    msg = orq_com(cliente).gerar(c, base.buscar(c.procedimento, k=1))
+    msg = orq_com(post).gerar(c, base.buscar(c.procedimento, k=1))
     assert msg.gerado_por == "template"
 
 
-@pytest.mark.parametrize("cliente", [
-    ClienteFalso(erro=ConnectionError("sem rede")),
-    ClienteFalso(resposta="isto não é json"),
-    ClienteFalso(resposta_ia(), stop_reason="refusal"),
-    ClienteFalso(resposta_ia(), stop_reason="max_tokens"),
+@pytest.mark.parametrize("post", [
+    N8nFalso(erro=ConnectionError("n8n desligado")),
+    N8nFalso(status=401),
+    N8nFalso(status=500),
+    N8nFalso(ok=False),
+    N8nFalso("isto não é json"),
+    N8nFalso({"sms": "faltam campos"}),
 ])
-def test_falhas_da_ia_sempre_entregam_mensagem(base, cliente):
+def test_falhas_da_ia_sempre_entregam_mensagem(base, post):
     c = consulta()
-    msg = orq_com(cliente).gerar(c, base.buscar(c.procedimento, k=1), "Rita")
+    msg = orq_com(post).gerar(c, base.buscar(c.procedimento, k=1), "Rita")
     assert msg.gerado_por == "template"
     assert msg.sms.startswith("Olá, Rita!")
     assert msg.avisos

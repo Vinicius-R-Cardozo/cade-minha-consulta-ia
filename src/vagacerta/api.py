@@ -156,7 +156,7 @@ def health():
         estado["status"] = "degradado"
         estado["modelo"] = None
     estado["base_conhecimento_docs"] = len(base().docs)
-    estado["ia_generativa"] = config.LLM_MODELO if orquestrador().ia else "desligada (template)"
+    estado["ia_generativa"] = f"n8n + Gemini ({config.N8N_WEBHOOK_URL})" if orquestrador().ia else "desligada (template)"
     return estado
 
 

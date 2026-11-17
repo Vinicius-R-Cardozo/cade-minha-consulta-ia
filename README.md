@@ -25,7 +25,7 @@ São três peças de IA que o backend do Vaga Certa (Java/Spring) chama:
 |---|---|---|---|
 | Risco de falta | **Machine Learning** (gradient boosting) | Gestor / regulador | Probabilidade de falta de cada consulta, faixa (baixo, médio, alto) e os sinais que pesaram. Com isso a equipe reforça o lembrete de quem tem mais risco e prepara encaixe. |
 | Orientação de preparo | **RAG básico** (recuperação em base curada) | Cidadão | O preparo certo do exame agendado (jejum, bexiga cheia, acompanhante etc.), vindo de uma base que a secretaria controla. |
-| Mensagem de confirmação | **IA generativa** (Claude, API da Anthropic) | Cidadão | SMS e texto do app em linguagem simples, com data, local, preparo e como confirmar (SIM) ou liberar a vaga (NAO). |
+| Mensagem de confirmação | **IA generativa** (Google Gemini, orquestrado por um workflow **n8n**) | Cidadão | SMS e texto do app em linguagem simples, com data, local, preparo e como confirmar (SIM) ou liberar a vaga (NAO). |
 
 A IA **não diagnostica, não decide quem é atendido e não tira ninguém da fila**. O modelo de risco só muda a
 intensidade do lembrete. A IA generativa só reescreve, em linguagem simples, orientações que já estão na base.
@@ -57,7 +57,12 @@ flowchart LR
         VAL[Validação<br/>regras + fundamentação]
         TPL[Template<br/>sem IA]
     end
-    CLAUDE[[Claude<br/>API Anthropic]]
+    subgraph N8N[n8n - workflow n8n/vagacerta-mensagem.json]
+        WH[Webhook + token]
+        GEM_CALL[HTTP Request<br/>Gemini generateContent]
+        CODE[Code<br/>confere resposta]
+    end
+    GEMINI[[Google Gemini<br/>API]]
     GESTOR[Painel do gestor]
 
     APP --> API_JAVA
@@ -65,8 +70,9 @@ flowchart LR
     RISCO -- probabilidade + faixa --> API_JAVA --> GESTOR
     API_JAVA -- procedimento, data, unidade, faixa --> MSG
     MSG --> RAG --> KB
-    MSG -- dados da consulta + orientação, sem nome --> CLAUDE
-    CLAUDE -- JSON: sms, app, itens usados, corresponde? --> VAL
+    MSG -- prompt + schema, sem nome --> WH --> GEM_CALL --> GEMINI
+    GEMINI --> CODE
+    CODE -- JSON: sms, app, itens usados, corresponde? --> VAL
     VAL -- reprovado / falha --> TPL
     VAL -- aprovado --> MSG
     MSG -- texto final --> API_JAVA --> SMS
@@ -77,9 +83,9 @@ Fluxo da mensagem, passo a passo:
 
 1. O backend Java envia procedimento, data, hora, unidade e a faixa de risco. Também pode enviar o primeiro nome, que **fica neste serviço**.
 2. O RAG procura o documento de preparo. Abaixo do score mínimo (0,30), nada é devolvido.
-3. O Claude recebe os dados da consulta e a orientação recuperada, mas nunca o nome. Ele devolve JSON (schema fixo) com SMS, texto do app, os itens usados e se a orientação **é mesmo do procedimento**.
+3. O Python monta o prompt (dados da consulta + orientação recuperada, nunca o nome) e o envia ao **webhook do n8n**. O workflow confere o token, chama o **Gemini** com a chave guardada só no n8n e pede saída em JSON com schema fixo: SMS, texto do app, itens usados e se a orientação **é mesmo do procedimento**. Um nó de código trata erro HTTP, bloqueio de segurança e JSON inválido antes de responder.
 4. A validação confere data, hora, SIM/NAO, limites de tamanho, termos de diagnóstico e de golpe, e se **cada item usado existe no documento**.
-5. Se algo falhar (sem chave, sem rede, recusa, JSON inválido, validação), entra o template. Ele só usa preparo específico quando a recuperação tem confiança alta (score ≥ 0,50).
+5. Se algo falhar (n8n desligado, sem chave, sem rede, bloqueio, JSON inválido, validação), entra o template. Ele só usa preparo específico quando a recuperação tem confiança alta (score ≥ 0,50).
 6. O nome é inserido no lugar do marcador `{nome}` e o texto volta ao backend.
 
 ## Tecnologias e justificativas
@@ -91,7 +97,8 @@ Fluxo da mensagem, passo a passo:
 | Divisão **temporal** treino/validação/teste | Em produção o modelo prevê o futuro com dados do passado. Uma divisão aleatória daria métricas otimistas. |
 | Limiar por **capacidade** (30% das consultas) + **cota por faixa etária** | O gestor não liga para todo mundo. O limiar é o ponto em que a equipe consegue reforçar 30% das consultas, e o recall diz quantas faltas isso cobre. A cota garante que cada faixa etária receba pelo menos 15% de reforço (ver avaliação). |
 | **RAG com TF-IDF de caracteres + cobertura de palavras** | A base é pequena e as buscas são nomes de exame com abreviação e erro de digitação ("USG", "ultrasom"). Roda offline, sem custo e sem mandar dados para fora. A cobertura de palavras evita casar "eletroencefalograma" com "eletrocardiograma". |
-| **Claude Opus 5.5**, esforço `low`, saída em **JSON com schema** | O modelo é forte em seguir regras e escrever em português simples. Esforço baixo basta para textos curtos e reduz custo e latência. O schema garante JSON válido. O fallback no servidor (`fallbacks: "default"`) cobre recusas. |
+| **n8n** como orquestrador da IA generativa | O fluxo fica visual e fácil de explicar e alterar (trocar de modelo, adicionar log ou um canal de WhatsApp) sem mexer no Python. A chave do Gemini fica só no n8n. O Python continua dono do prompt, das regras e da validação, que são testados automaticamente. |
+| **Google Gemini** (Flash), temperatura 0,3, saída em **JSON com schema** (`responseSchema`) | Tem plano gratuito, escreve bem em português e segue instruções. O Flash é rápido e barato, suficiente para textos curtos. Temperatura baixa deixa o texto mais previsível. O schema garante a estrutura que a validação espera. |
 | **Template** como plano B | O edital pede solução útil "fora do cenário ideal de conectividade". Sem chave ou sem internet, o cidadão continua recebendo mensagem correta. |
 | FastAPI | Contrato tipado (Pydantic), validação de entrada e Swagger automático em `/docs` para o time Java. |
 | Token serviço-a-serviço (`X-Service-Token`) | Só o backend chama este serviço. A comparação é em tempo constante (`hmac.compare_digest`). |
@@ -123,7 +130,7 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Opcional: preencha `ANTHROPIC_API_KEY` no `.env` para ligar a IA generativa. Sem ela, tudo funciona com o template.
+IA generativa (opcional; sem ela tudo funciona com o template): instale o [n8n](https://docs.n8n.io/) com `npm install -g n8n` (Node 24), crie uma chave gratuita do Gemini em https://aistudio.google.com/apikey, preencha `GEMINI_API_KEY` e `VAGACERTA_N8N_TOKEN` no `.env` e suba o n8n com `powershell -File scripts/n8n_iniciar.ps1`. O script importa e ativa o workflow sozinho. Detalhes em [n8n/README.md](n8n/README.md).
 
 O modelo versionado em `modelos/` já foi treinado com a base do Kaggle. Para retreinar, baixe `KaggleV2-May-2016.csv` (ver [data/README.md](data/README.md)) para `data/raw/`; sem ele, o treino usa a base sintética.
 
@@ -136,7 +143,7 @@ python -m pytest
 uvicorn vagacerta.api:app --app-dir src --port 8000
 ```
 
-O modo `ia` exige a chave. Com a API no ar, a documentação interativa fica em http://localhost:8000/docs.
+O modo `ia` exige o n8n rodando com a chave do Gemini. Com a API no ar, a documentação interativa fica em http://localhost:8000/docs.
 
 ### Exemplos de chamada
 
@@ -208,17 +215,23 @@ Usamos 23 procedimentos novos, escritos depois de toda a calibração, incluindo
 | **Preparo de outro exame (erro grave)** | **0/23** |
 | Injeção no campo procedimento repetida na mensagem | não |
 
-O modo `ia` mede o mesmo conjunto e confere que o nome do paciente não aparece em nenhum prompt enviado à API.
-O esperado é recuperar parte das omissões do template, porque a IA verifica a correspondência. Rode
-`python scripts/avaliar_mensagens.py --modo ia` com a chave configurada para gerar
-`evidencias/mensagens_avaliacao_ia.md`.
+O modo `ia` (`python scripts/avaliar_mensagens.py --modo ia`, com o n8n no ar) mede o mesmo conjunto passando pelo
+n8n e pelo Gemini e gera `evidencias/mensagens_avaliacao_ia.md`. Ele também confere que o nome do paciente não aparece
+em nenhum prompt enviado. O esperado é recuperar parte das omissões do template, porque o Gemini verifica a
+correspondência entre orientação e procedimento.
+
+O caminho Python → n8n → Gemini também foi testado de ponta a ponta com um Gemini falso (`tests/gemini_falso.py`):
+23 mensagens geradas pelo workflow, cerca de 0,8 s por mensagem no n8n local. Os quatro desvios do workflow foram
+exercitados: erro HTTP 500, bloqueio de segurança (`SAFETY`), JSON inválido e token errado (401).
 
 ### Testes automatizados
 
-`python -m pytest`: 46 testes. Eles cobrem a limpeza de dados, o **histórico sem vazamento**, a divisão temporal e o
-modelo melhor que o baseline, além de checarem que a cota por faixa etária só acrescenta sinalizações. No RAG, cobrem exames encontrados e não inventados. Na geração, cobrem o template, o
-bloqueio de diagnóstico, PIX e senha, a injeção e cinco falhas da IA simuladas: rede, JSON inválido, recusa, corte por
-tokens e item inventado. Na API, cobrem entradas inválidas (422), consulta passada, lote vazio ou grande demais e o token de serviço.
+`python -m pytest`: 49 testes. Eles cobrem:
+
+- **Dados e modelo:** limpeza, **histórico sem vazamento**, divisão temporal, modelo melhor que o baseline e a cota por faixa etária só acrescentando sinalizações.
+- **RAG:** exames encontrados e exames que não podem ser inventados.
+- **Geração:** template, bloqueio de diagnóstico, PIX e senha, injeção e o caminho do n8n com webhook simulado. Inclui seis falhas, todas caindo no template: n8n desligado, 401, 500, erro do Gemini, JSON inválido e campos faltando. Também cobre item inventado e orientação que não corresponde ao exame.
+- **API:** entradas inválidas (422), consulta passada, lote vazio ou grande demais e token de serviço.
 
 ## Uso responsável e LGPD
 
@@ -237,7 +250,7 @@ tokens e item inventado. Na API, cobrem entradas inválidas (422), consulta pass
 - **Idosos:** mesmo com a cota, a cobertura das faltas de quem tem 60 anos ou mais (18,5%) fica abaixo da média. As faltas desse grupo provavelmente dependem de fatores que a base não tem, como transporte e mobilidade.
 - **Atributos ausentes:** a base não tem distância até a unidade, transporte, especialidade nem clima, fatores que influenciam a falta.
 - **RAG:** a base tem 16 documentos. Exames fora dela recebem mensagem sem preparo específico, e parte dos exames que estão nela pode ficar sem preparo no modo template (erro seguro). O conteúdo é de exemplo e precisa da revisão técnica da secretaria.
-- **IA generativa:** depende de internet e de chave paga. Pode errar o tom ou omitir um cuidado; por isso a saída passa por validação, mas a validação não garante que todo cuidado importante foi citado. A mensagem sempre orienta a seguir o pedido médico.
+- **IA generativa:** depende de internet, do n8n no ar e da cota do plano gratuito do Gemini (em uso real, plano pago e contrato com cláusulas de dados). No plano gratuito o Google pode usar os textos enviados para melhorar os modelos; por isso o prompt não leva nome nem dado clínico. O modelo pode errar o tom ou omitir um cuidado: a saída passa por validação, mas a validação não garante que todo cuidado importante foi citado. A mensagem sempre orienta a seguir o pedido médico.
 - **Integração:** SISREG e RNDS não estão abertos para o projeto, então a integração com sistemas reais é simulada pelo backend Java.
 
 ## Próximos passos
@@ -254,7 +267,8 @@ base_conhecimento/   documentos de preparo (fonte do RAG)
 data/                instruções da base do Kaggle; base sintética gerada
 evidencias/          relatórios, métricas e gráficos gerados pelos scripts
 modelos/             modelo treinado (.joblib) e metadados
-scripts/             treino, avaliações e gerador de dados sintéticos
+scripts/             treino, avaliações, gerador de dados sintéticos e n8n_iniciar.ps1
 src/vagacerta/       código: dados, modelo, rag, geracao (IA generativa) e api
-tests/               testes automatizados (pytest)
+tests/               testes automatizados (pytest) e Gemini falso para testar o n8n
+n8n/                 workflow do n8n (IA generativa com Gemini) e instruções
 ```

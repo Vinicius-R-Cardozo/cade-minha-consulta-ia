@@ -1,11 +1,11 @@
 """IA generativa: escreve a mensagem de confirmação com as orientações de preparo, em linguagem simples.
 
-Fluxo: dados da consulta + documento recuperado pelo RAG -> Claude -> validação -> mensagem.
+Fluxo: dados da consulta + documento recuperado pelo RAG -> workflow n8n -> Google Gemini -> validação -> mensagem.
 
 Duas travas contra preparo errado:
-1. Verificação de correspondência: o Claude diz se a orientação recuperada é do MESMO procedimento
+1. Verificação de correspondência: o Gemini diz se a orientação recuperada é do MESMO procedimento
    (o RAG pode trazer "ultrassom de abdome" para "tomografia de abdome"). Se não for, a mensagem sai sem preparo.
-2. Checagem de fundamentação: cada item que o Claude diz ter usado precisa existir no documento recuperado.
+2. Checagem de fundamentação: cada item que o Gemini diz ter usado precisa existir no documento recuperado.
 
 Se a chamada falhar, for recusada ou a saída não passar na validação, usamos um modelo fixo (template).
 O template só usa preparo específico quando a recuperação tem confiança alta. O cidadão sempre recebe mensagem.
@@ -80,6 +80,19 @@ SCHEMA_SAIDA = {
     },
     "required": ["orientacao_corresponde", "sms", "app", "itens_usados"],
     "additionalProperties": False,
+}
+
+# Mesmo schema no formato que a API do Gemini aceita em generationConfig.responseSchema (subconjunto OpenAPI).
+SCHEMA_GEMINI = {
+    "type": "OBJECT",
+    "properties": {
+        "orientacao_corresponde": {"type": "BOOLEAN"},
+        "sms": {"type": "STRING"},
+        "app": {"type": "STRING"},
+        "itens_usados": {"type": "ARRAY", "items": {"type": "STRING"}},
+    },
+    "required": ["orientacao_corresponde", "sms", "app", "itens_usados"],
+    "propertyOrdering": ["orientacao_corresponde", "sms", "app", "itens_usados"],
 }
 
 
@@ -215,41 +228,45 @@ class GeradorTemplate:
         return Mensagem(sms, app, self.nome, [d.fonte for d in docs], itens_usados=usados)
 
 
-class GeradorClaude:
-    """Gera a mensagem com Claude (API da Anthropic), saída em JSON garantida por schema."""
+class ErroIA(RuntimeError):
+    """Falha da IA generativa (rede, recusa, resposta inválida). O orquestrador cai para o template."""
 
-    def __init__(self, cliente=None):
-        import anthropic
 
-        self.cliente = cliente or anthropic.Anthropic(timeout=config.LLM_TIMEOUT_S, max_retries=2)
-        self.nome = config.LLM_MODELO
+class GeradorN8n:
+    """Gera a mensagem pelo workflow do n8n (n8n/vagacerta-mensagem.json), que chama o Google Gemini.
 
-    def _chamar(self, prompt: str):
-        extra = {}
-        if config.LLM_FALLBACK_SERVIDOR:
-            # Se o modelo recusar por política de segurança, a API refaz a chamada num modelo de reserva.
-            extra = {"betas": ["server-side-fallback-2026-07-01"], "fallbacks": "default"}
-        return self.cliente.beta.messages.create(
-            model=config.LLM_MODELO,
-            max_tokens=4000,
-            system=SISTEMA,
-            output_config={"effort": config.LLM_ESFORCO, "format": {"type": "json_schema", "schema": SCHEMA_SAIDA}},
-            messages=[{"role": "user", "content": prompt}],
-            **extra,
-        )
+    O Python manda o prompt e o schema de saída; o n8n guarda a chave do Gemini, faz a chamada e devolve
+    {"ok": true, "modelo": ..., "resultado": {...}} ou {"ok": false, "erro": ...}.
+    """
+
+    def __init__(self, url: str | None = None, token: str | None = None, post=None):
+        import httpx
+
+        self.url = url or config.N8N_WEBHOOK_URL
+        self.token = token if token is not None else config.N8N_TOKEN
+        self._post = post or httpx.post
+        self.nome = "n8n+gemini"
+
+    def _chamar(self, prompt: str) -> dict:
+        corpo = {"sistema": SISTEMA, "prompt": prompt, "schema": SCHEMA_GEMINI}
+        resp = self._post(self.url, json=corpo, headers={"X-Vagacerta-Token": self.token},
+                          timeout=config.N8N_TIMEOUT_S)
+        if resp.status_code != 200:
+            raise ErroIA(f"n8n respondeu HTTP {resp.status_code}")
+        dados = resp.json()
+        if not dados.get("ok"):
+            raise ErroIA(f"n8n/Gemini: {dados.get('erro', 'erro desconhecido')}")
+        return dados
 
     def gerar(self, c: DadosConsulta, docs: list[Documento]) -> tuple[Mensagem, bool]:
-        resp = self._chamar(montar_prompt(c, docs))
-        if resp.stop_reason == "refusal":
-            raise RuntimeError("modelo recusou a solicitação")
-        if resp.stop_reason == "max_tokens":
-            raise RuntimeError("resposta cortada por limite de tokens")
-        texto = next((b.text for b in resp.content if b.type == "text"), "")
-        dados = json.loads(texto)
-        corresponde = bool(dados["orientacao_corresponde"]) and bool(docs)
+        dados = self._chamar(montar_prompt(c, docs))
+        r = dados["resultado"]
+        if isinstance(r, str):
+            r = json.loads(r)
+        corresponde = bool(r["orientacao_corresponde"]) and bool(docs)
         msg = Mensagem(
-            dados["sms"].strip(), dados["app"].strip(), getattr(resp, "model", None) or self.nome,
-            [d.fonte for d in docs] if corresponde else [], itens_usados=list(dados["itens_usados"]),
+            str(r["sms"]).strip(), str(r["app"]).strip(), f"gemini:{dados.get('modelo') or 'desconhecido'}",
+            [d.fonte for d in docs] if corresponde else [], itens_usados=[str(i) for i in r["itens_usados"]],
         )
         return msg, corresponde
 
@@ -260,8 +277,8 @@ class Orquestrador:
     def __init__(self, gerador_ia=None, usar_ia: bool | None = None):
         self.template = GeradorTemplate()
         if usar_ia is None:
-            usar_ia = config.tem_credencial_llm()
-        self.ia = gerador_ia if gerador_ia is not None else (GeradorClaude() if usar_ia else None)
+            usar_ia = config.ia_ligada()
+        self.ia = gerador_ia if gerador_ia is not None else (GeradorN8n() if usar_ia else None)
 
     def _tentar_ia(self, c: DadosConsulta, docs: list[Documento], avisos: list[str]) -> Mensagem | None:
         try:

@@ -10,7 +10,7 @@ Gerado por `scripts/avaliar_mensagens.py --modo template`. 23 procedimentos escr
 | Preparo: sem preparo (correto) | 9/23 |
 | Mensagens escritas pela IA (resto: template) | 0/23 |
 | Nome do paciente enviado à API | não |
-| Latência mediana / máxima | 0 ms / 3 ms |
+| Latência mediana / máxima | 0 ms / 2 ms |
 | Maior SMS | 263 caracteres |
 
 ## Caso a caso

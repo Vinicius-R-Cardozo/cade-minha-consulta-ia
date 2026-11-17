@@ -10,7 +10,7 @@ Para cada caso mede:
 
 Uso:
   python scripts/avaliar_mensagens.py --modo template   # sem IA, sem custo
-  python scripts/avaliar_mensagens.py --modo ia         # usa Claude (precisa de ANTHROPIC_API_KEY no .env)
+  python scripts/avaliar_mensagens.py --modo ia         # usa o workflow n8n + Gemini (n8n precisa estar rodando)
 Saída: evidencias/mensagens_avaliacao_<modo>.md e .json
 """
 
@@ -27,7 +27,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ / "src"))
 sys.stdout.reconfigure(encoding="utf-8")
 from vagacerta import config  # noqa: E402
-from vagacerta.geracao import DadosConsulta, GeradorClaude, Orquestrador, validar  # noqa: E402
+from vagacerta.geracao import DadosConsulta, GeradorN8n, Orquestrador, validar  # noqa: E402
 from vagacerta.rag import BaseConhecimento  # noqa: E402
 
 NOME_TESTE = "Marilene"
@@ -61,7 +61,7 @@ CASOS = [
 ]
 
 
-class ClaudeComRegistro(GeradorClaude):
+class N8nComRegistro(GeradorN8n):
     """Guarda cada prompt enviado para conferir que nenhum dado pessoal saiu da máquina."""
 
     def __init__(self):
@@ -87,9 +87,16 @@ def main() -> None:
     p.add_argument("--modo", choices=["template", "ia"], default="template")
     a = p.parse_args()
 
-    if a.modo == "ia" and not config.tem_credencial_llm():
-        sys.exit("Modo ia precisa de ANTHROPIC_API_KEY no .env (veja .env.example).")
-    ia = ClaudeComRegistro() if a.modo == "ia" else None
+    ia = None
+    if a.modo == "ia":
+        import httpx
+
+        base_n8n = config.N8N_WEBHOOK_URL.split("/webhook")[0]
+        try:
+            httpx.get(f"{base_n8n}/healthz", timeout=5).raise_for_status()
+        except httpx.HTTPError:
+            sys.exit(f"n8n não respondeu em {base_n8n}. Suba com: scripts\\n8n_iniciar.ps1 (veja n8n/README.md).")
+        ia = N8nComRegistro()
     orq = Orquestrador(gerador_ia=ia, usar_ia=a.modo == "ia")
     base = BaseConhecimento()
     dia = date.today() + timedelta(days=5)
@@ -118,7 +125,7 @@ def main() -> None:
     vazou = any(NOME_TESTE in pr for pr in ia.prompts) if ia else False
     resumo = {
         "modo": a.modo,
-        "modelo": config.LLM_MODELO if a.modo == "ia" else "template",
+        "modelo": "n8n + Gemini" if a.modo == "ia" else "template",
         "casos": n,
         "mensagens_validas": sum(r["valida"] for r in linhas_json),
         "classes_preparo": classes,

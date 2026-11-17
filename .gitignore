@@ -7,3 +7,5 @@ __pycache__/
 data/raw/*
 !data/raw/.gitkeep
 data/sintetico/
+# Dados locais do n8n (banco SQLite, chave de criptografia, logs)
+n8n/.local/

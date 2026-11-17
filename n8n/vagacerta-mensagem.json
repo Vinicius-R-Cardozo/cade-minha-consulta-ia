@@ -1,0 +1,139 @@
+{
+  "id": "VagaCertaMsg0001",
+  "name": "Vaga Certa - mensagem de confirmação (Gemini)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vagacerta-mensagem",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "5b1f7a2e-0c1d-4a3b-9e01-000000000001",
+      "name": "Recebe pedido do Vaga Certa",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "webhookId": "7c9d0e1f-2a3b-4c5d-8e9f-vagacerta001"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c0a8b1d2-0000-4000-8000-000000000001",
+              "leftValue": "={{ $json.headers['x-vagacerta-token'] || '' }}",
+              "rightValue": "={{ $env.VAGACERTA_N8N_TOKEN || '' }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5b1f7a2e-0c1d-4a3b-9e01-000000000002",
+      "name": "Token confere?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com') + '/v1beta/models/' + ($env.GEMINI_MODELO || 'gemini-flash-latest') + ':generateContent' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-goog-api-key",
+              "value": "={{ $env.GEMINI_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ systemInstruction: { parts: [{ text: $json.body.sistema }] }, contents: [{ role: 'user', parts: [{ text: $json.body.prompt }] }], generationConfig: { responseMimeType: 'application/json', responseSchema: $json.body.schema, temperature: 0.3, maxOutputTokens: 4096 } }) }}",
+        "options": {
+          "timeout": 35000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "5b1f7a2e-0c1d-4a3b-9e01-000000000003",
+      "name": "Gemini gera a mensagem",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Converte a resposta do Gemini no contrato que o Python espera.\n// Sucesso: { ok: true, modelo, resultado, uso }  |  Falha: { ok: false, erro }\nconst r = $input.first().json;\nconst status = r.statusCode;\nconst body = (typeof r.body === 'string') ? (() => { try { return JSON.parse(r.body); } catch (e) { return {}; } })() : (r.body || {});\n\nif (status !== 200) {\n  const msg = (body.error && body.error.message) || ('HTTP ' + status);\n  return [{ json: { ok: false, erro: 'Gemini HTTP ' + status + ': ' + String(msg).slice(0, 200) } }];\n}\nconst cand = (body.candidates || [])[0];\nif (!cand) {\n  const motivo = (body.promptFeedback && body.promptFeedback.blockReason) || 'sem resposta';\n  return [{ json: { ok: false, erro: 'Gemini bloqueou o pedido: ' + motivo } }];\n}\nif (cand.finishReason && cand.finishReason !== 'STOP') {\n  return [{ json: { ok: false, erro: 'Gemini terminou com ' + cand.finishReason } }];\n}\nconst texto = ((cand.content && cand.content.parts) || [])\n  .filter(p => !p.thought)\n  .map(p => p.text || '')\n  .join('');\nlet resultado;\ntry {\n  resultado = JSON.parse(texto);\n} catch (e) {\n  return [{ json: { ok: false, erro: 'Gemini devolveu JSON inválido' } }];\n}\nreturn [{ json: { ok: true, modelo: body.modelVersion || null, resultado, uso: body.usageMetadata || null } }];\n"
+      },
+      "id": "5b1f7a2e-0c1d-4a3b-9e01-000000000004",
+      "name": "Confere resposta do Gemini",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [760, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "5b1f7a2e-0c1d-4a3b-9e01-000000000005",
+      "name": "Devolve para o Vaga Certa",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1020, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: false, erro: 'token de serviço inválido' } }}",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "5b1f7a2e-0c1d-4a3b-9e01-000000000006",
+      "name": "Recusa: token inválido",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [500, 420]
+    }
+  ],
+  "connections": {
+    "Recebe pedido do Vaga Certa": {
+      "main": [[{ "node": "Token confere?", "type": "main", "index": 0 }]]
+    },
+    "Token confere?": {
+      "main": [
+        [{ "node": "Gemini gera a mensagem", "type": "main", "index": 0 }],
+        [{ "node": "Recusa: token inválido", "type": "main", "index": 0 }]
+      ]
+    },
+    "Gemini gera a mensagem": {
+      "main": [[{ "node": "Confere resposta do Gemini", "type": "main", "index": 0 }]]
+    },
+    "Confere resposta do Gemini": {
+      "main": [[{ "node": "Devolve para o Vaga Certa", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "pinData": {}
+}
