@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+# Base do Kaggle: baixar pelo link do README (licença e tamanho)
+data/raw/*
+!data/raw/.gitkeep
+data/sintetico/

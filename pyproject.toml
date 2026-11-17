@@ -1,0 +1,9 @@
+[project]
+name = "vaga-certa-ia"
+version = "1.0.0"
+description = "Vaga Certa: previsão de falta, RAG de preparo de exames e mensagens com IA generativa"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "scripts"]

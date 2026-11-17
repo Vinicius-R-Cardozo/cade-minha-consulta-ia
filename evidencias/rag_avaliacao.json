@@ -1,0 +1,931 @@
+{
+  "limiar": 0.3,
+  "teste": {
+    "limiar": 0.3,
+    "acerto@1": 1.0,
+    "acerto@3": 1.0,
+    "mrr": 1.0,
+    "nao_encontrado_correto": 0.6,
+    "n_positivos": 24,
+    "n_fora_da_base": 10,
+    "detalhes": [
+      {
+        "consulta": "US ABDOMINAL",
+        "esperado": "ultrassom-abdome",
+        "devolvido": "ultrassom-abdome",
+        "melhor_score": [
+          "ultrassom-abdome",
+          0.459
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ecografia abdominal",
+        "esperado": "ultrassom-abdome",
+        "devolvido": "ultrassom-abdome",
+        "melhor_score": [
+          "ultrassom-abdome",
+          0.729
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ultrassom da bexiga",
+        "esperado": "ultrassom-pelvico-rins",
+        "devolvido": "ultrassom-pelvico-rins",
+        "melhor_score": [
+          "ultrassom-pelvico-rins",
+          0.721
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "EDA com biopsia",
+        "esperado": "endoscopia",
+        "devolvido": "endoscopia",
+        "melhor_score": [
+          "endoscopia",
+          0.307
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "exame do estomago",
+        "esperado": "endoscopia",
+        "devolvido": "endoscopia",
+        "melhor_score": [
+          "endoscopia",
+          0.641
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "colonoscopia com biopsia",
+        "esperado": "colonoscopia",
+        "devolvido": "colonoscopia",
+        "melhor_score": [
+          "colonoscopia",
+          0.474
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "eletro do coração",
+        "esperado": "eletrocardiograma",
+        "devolvido": "eletrocardiograma",
+        "melhor_score": [
+          "eletrocardiograma",
+          0.755
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ergometria",
+        "esperado": "teste-ergometrico",
+        "devolvido": "teste-ergometrico",
+        "melhor_score": [
+          "teste-ergometrico",
+          0.773
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ecodoppler cardiaco",
+        "esperado": "ecocardiograma",
+        "devolvido": "ecocardiograma",
+        "melhor_score": [
+          "ecocardiograma",
+          0.734
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "mamografia diagnostica",
+        "esperado": "mamografia",
+        "devolvido": "mamografia",
+        "melhor_score": [
+          "mamografia",
+          0.502
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "rx de torax",
+        "esperado": "raio-x",
+        "devolvido": "raio-x",
+        "melhor_score": [
+          "raio-x",
+          0.305
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "radiografia de coluna lombo-sacra",
+        "esperado": "raio-x",
+        "devolvido": "raio-x",
+        "melhor_score": [
+          "raio-x",
+          0.419
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "glicose em jejum",
+        "esperado": "glicemia-jejum",
+        "devolvido": "glicemia-jejum",
+        "melhor_score": [
+          "glicemia-jejum",
+          0.757
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "curva glicemica",
+        "esperado": "glicemia-jejum",
+        "devolvido": "glicemia-jejum",
+        "melhor_score": [
+          "glicemia-jejum",
+          0.779
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "lipidograma",
+        "esperado": "colesterol-triglicerides",
+        "devolvido": "colesterol-triglicerides",
+        "melhor_score": [
+          "colesterol-triglicerides",
+          0.657
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "HDL colesterol",
+        "esperado": "colesterol-triglicerides",
+        "devolvido": "colesterol-triglicerides",
+        "melhor_score": [
+          "colesterol-triglicerides",
+          0.693
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "dosagem de creatinina",
+        "esperado": "exames-de-sangue",
+        "devolvido": "exames-de-sangue",
+        "melhor_score": [
+          "exames-de-sangue",
+          0.621
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "hemograma",
+        "esperado": "exames-de-sangue",
+        "devolvido": "exames-de-sangue",
+        "melhor_score": [
+          "exames-de-sangue",
+          0.692
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "EAS",
+        "esperado": "exame-urina",
+        "devolvido": "exame-urina",
+        "melhor_score": [
+          "exame-urina",
+          0.555
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "parasitologico",
+        "esperado": "exame-fezes",
+        "devolvido": "exame-fezes",
+        "melhor_score": [
+          "exame-fezes",
+          0.798
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "sangue oculto nas fezes",
+        "esperado": "exame-fezes",
+        "devolvido": "exame-fezes",
+        "melhor_score": [
+          "exame-fezes",
+          0.582
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "consulta em neurologia",
+        "esperado": "consulta-especialista",
+        "devolvido": "consulta-especialista",
+        "melhor_score": [
+          "consulta-especialista",
+          0.671
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "primeira consulta dermatologia",
+        "esperado": "consulta-especialista",
+        "devolvido": "consulta-especialista",
+        "melhor_score": [
+          "consulta-especialista",
+          0.499
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "quero liberar minha vaga",
+        "esperado": "confirmar-liberar-vaga",
+        "devolvido": "confirmar-liberar-vaga",
+        "melhor_score": [
+          "confirmar-liberar-vaga",
+          0.518
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ULTRASSONOGRAFIA TRANSVAGINAL",
+        "esperado": null,
+        "devolvido": "ultrassom-abdome",
+        "melhor_score": [
+          "ultrassom-abdome",
+          0.452
+        ],
+        "ok": false
+      },
+      {
+        "consulta": "ultrassom com doppler de membros inferiores",
+        "esperado": null,
+        "devolvido": null,
+        "melhor_score": [
+          "ultrassom-abdome",
+          0.298
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ressonancia de coluna",
+        "esperado": null,
+        "devolvido": null,
+        "melhor_score": [
+          "glicemia-jejum",
+          0.057
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "tomografia de abdome",
+        "esperado": null,
+        "devolvido": "ultrassom-abdome",
+        "melhor_score": [
+          "ultrassom-abdome",
+          0.466
+        ],
+        "ok": false
+      },
+      {
+        "consulta": "holter 24 horas",
+        "esperado": null,
+        "devolvido": null,
+        "melhor_score": [
+          "colesterol-triglicerides",
+          0.03
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "audiometria",
+        "esperado": null,
+        "devolvido": null,
+        "melhor_score": [
+          "teste-ergometrico",
+          0.173
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "cintilografia",
+        "esperado": null,
+        "devolvido": null,
+        "melhor_score": [
+          "raio-x",
+          0.145
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "biopsia de prostata",
+        "esperado": null,
+        "devolvido": "ultrassom-pelvico-rins",
+        "melhor_score": [
+          "ultrassom-pelvico-rins",
+          0.401
+        ],
+        "ok": false
+      },
+      {
+        "consulta": "papanicolau",
+        "esperado": null,
+        "devolvido": null,
+        "melhor_score": [
+          "exame-fezes",
+          0.032
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "teste do pezinho",
+        "esperado": null,
+        "devolvido": "teste-ergometrico",
+        "melhor_score": [
+          "teste-ergometrico",
+          0.41
+        ],
+        "ok": false
+      }
+    ]
+  },
+  "calibracao": {
+    "limiar": 0.3,
+    "acerto@1": 1.0,
+    "acerto@3": 1.0,
+    "mrr": 1.0,
+    "nao_encontrado_correto": 1.0,
+    "n_positivos": 35,
+    "n_fora_da_base": 7,
+    "detalhes": [
+      {
+        "consulta": "ULTRASSONOGRAFIA DE ABDOMEN TOTAL",
+        "esperado": "ultrassom-abdome",
+        "devolvido": "ultrassom-abdome",
+        "melhor_score": [
+          "ultrassom-abdome",
+          0.804
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "usg abdome superior",
+        "esperado": "ultrassom-abdome",
+        "devolvido": "ultrassom-abdome",
+        "melhor_score": [
+          "ultrassom-abdome",
+          0.767
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ultrasom do figado",
+        "esperado": "ultrassom-abdome",
+        "devolvido": "ultrassom-abdome",
+        "melhor_score": [
+          "ultrassom-abdome",
+          0.666
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ULTRASSONOGRAFIA PELVICA (GINECOLOGICA)",
+        "esperado": "ultrassom-pelvico-rins",
+        "devolvido": "ultrassom-pelvico-rins",
+        "melhor_score": [
+          "ultrassom-pelvico-rins",
+          0.544
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ultrassom de rins e vias urinarias",
+        "esperado": "ultrassom-pelvico-rins",
+        "devolvido": "ultrassom-pelvico-rins",
+        "melhor_score": [
+          "ultrassom-pelvico-rins",
+          0.818
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ULTRASSONOGRAFIA DE PROSTATA VIA ABDOMINAL",
+        "esperado": "ultrassom-pelvico-rins",
+        "devolvido": "ultrassom-pelvico-rins",
+        "melhor_score": [
+          "ultrassom-pelvico-rins",
+          0.807
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ENDOSCOPIA DIGESTIVA ALTA",
+        "esperado": "endoscopia",
+        "devolvido": "endoscopia",
+        "melhor_score": [
+          "endoscopia",
+          0.876
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "endoscopia",
+        "esperado": "endoscopia",
+        "devolvido": "endoscopia",
+        "melhor_score": [
+          "endoscopia",
+          0.783
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "COLONOSCOPIA (COLOSCOPIA)",
+        "esperado": "colonoscopia",
+        "devolvido": "colonoscopia",
+        "melhor_score": [
+          "colonoscopia",
+          0.722
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "colono",
+        "esperado": "colonoscopia",
+        "devolvido": "colonoscopia",
+        "melhor_score": [
+          "colonoscopia",
+          0.612
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ELETROCARDIOGRAMA",
+        "esperado": "eletrocardiograma",
+        "devolvido": "eletrocardiograma",
+        "melhor_score": [
+          "eletrocardiograma",
+          0.871
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ECG",
+        "esperado": "eletrocardiograma",
+        "devolvido": "eletrocardiograma",
+        "melhor_score": [
+          "eletrocardiograma",
+          0.638
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "TESTE DE ESFORCO / TESTE ERGOMETRICO",
+        "esperado": "teste-ergometrico",
+        "devolvido": "teste-ergometrico",
+        "melhor_score": [
+          "teste-ergometrico",
+          0.908
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ECOCARDIOGRAFIA TRANSTORACICA",
+        "esperado": "ecocardiograma",
+        "devolvido": "ecocardiograma",
+        "melhor_score": [
+          "ecocardiograma",
+          0.55
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ecocardiograma",
+        "esperado": "ecocardiograma",
+        "devolvido": "ecocardiograma",
+        "melhor_score": [
+          "ecocardiograma",
+          0.831
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "MAMOGRAFIA BILATERAL PARA RASTREAMENTO",
+        "esperado": "mamografia",
+        "devolvido": "mamografia",
+        "melhor_score": [
+          "mamografia",
+          0.8
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "mamografia",
+        "esperado": "mamografia",
+        "devolvido": "mamografia",
+        "melhor_score": [
+          "mamografia",
+          0.807
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "RADIOGRAFIA DE TORAX (PA E PERFIL)",
+        "esperado": "raio-x",
+        "devolvido": "raio-x",
+        "melhor_score": [
+          "raio-x",
+          0.477
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "raio x joelho",
+        "esperado": "raio-x",
+        "devolvido": "raio-x",
+        "melhor_score": [
+          "raio-x",
+          0.482
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "DOSAGEM DE GLICOSE",
+        "esperado": "glicemia-jejum",
+        "devolvido": "glicemia-jejum",
+        "melhor_score": [
+          "glicemia-jejum",
+          0.718
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "glicemia de jejum",
+        "esperado": "glicemia-jejum",
+        "devolvido": "glicemia-jejum",
+        "melhor_score": [
+          "glicemia-jejum",
+          0.771
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "DOSAGEM DE HEMOGLOBINA GLICOSILADA",
+        "esperado": "glicemia-jejum",
+        "devolvido": "glicemia-jejum",
+        "melhor_score": [
+          "glicemia-jejum",
+          0.467
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "DOSAGEM DE COLESTEROL TOTAL",
+        "esperado": "colesterol-triglicerides",
+        "devolvido": "colesterol-triglicerides",
+        "melhor_score": [
+          "colesterol-triglicerides",
+          0.643
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "DOSAGEM DE TRIGLICERIDEOS",
+        "esperado": "colesterol-triglicerides",
+        "devolvido": "colesterol-triglicerides",
+        "melhor_score": [
+          "colesterol-triglicerides",
+          0.767
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "HEMOGRAMA COMPLETO",
+        "esperado": "exames-de-sangue",
+        "devolvido": "exames-de-sangue",
+        "melhor_score": [
+          "exames-de-sangue",
+          0.703
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "DOSAGEM DE TSH",
+        "esperado": "exames-de-sangue",
+        "devolvido": "exames-de-sangue",
+        "melhor_score": [
+          "exames-de-sangue",
+          0.556
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "exame de sangue",
+        "esperado": "exames-de-sangue",
+        "devolvido": "exames-de-sangue",
+        "melhor_score": [
+          "exames-de-sangue",
+          0.661
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ANALISE DE CARACTERES FISICOS, ELEMENTOS E SEDIMENTO DA URINA",
+        "esperado": "exame-urina",
+        "devolvido": "exame-urina",
+        "melhor_score": [
+          "exame-urina",
+          0.538
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "urina tipo 1",
+        "esperado": "exame-urina",
+        "devolvido": "exame-urina",
+        "melhor_score": [
+          "exame-urina",
+          0.724
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "UROCULTURA",
+        "esperado": "exame-urina",
+        "devolvido": "exame-urina",
+        "melhor_score": [
+          "exame-urina",
+          0.707
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "PESQUISA DE OVOS E CISTOS DE PARASITAS (PARASITOLOGICO DE FEZES)",
+        "esperado": "exame-fezes",
+        "devolvido": "exame-fezes",
+        "melhor_score": [
+          "exame-fezes",
+          0.509
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "CONSULTA EM ENDOCRINOLOGIA",
+        "esperado": "consulta-especialista",
+        "devolvido": "consulta-especialista",
+        "melhor_score": [
+          "consulta-especialista",
+          0.677
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "consulta cardiologista",
+        "esperado": "consulta-especialista",
+        "devolvido": "consulta-especialista",
+        "melhor_score": [
+          "consulta-especialista",
+          0.759
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "CONSULTA MEDICA EM ATENCAO ESPECIALIZADA - ORTOPEDIA",
+        "esperado": "consulta-especialista",
+        "devolvido": "consulta-especialista",
+        "melhor_score": [
+          "consulta-especialista",
+          0.698
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "como desmarcar minha consulta",
+        "esperado": "confirmar-liberar-vaga",
+        "devolvido": "confirmar-liberar-vaga",
+        "melhor_score": [
+          "confirmar-liberar-vaga",
+          0.699
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "RESSONANCIA MAGNETICA DE JOELHO",
+        "esperado": null,
+        "devolvido": null,
+        "melhor_score": [
+          "glicemia-jejum",
+          0.063
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "TOMOGRAFIA COMPUTADORIZADA DE CRANIO",
+        "esperado": null,
+        "devolvido": null,
+        "melhor_score": [
+          "mamografia",
+          0.126
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "DENSITOMETRIA OSSEA",
+        "esperado": null,
+        "devolvido": null,
+        "melhor_score": [
+          "teste-ergometrico",
+          0.15
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ELETROENCEFALOGRAMA",
+        "esperado": null,
+        "devolvido": null,
+        "melhor_score": [
+          "eletrocardiograma",
+          0.22
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "ESPIROMETRIA",
+        "esperado": null,
+        "devolvido": null,
+        "melhor_score": [
+          "teste-ergometrico",
+          0.169
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "sessao de fisioterapia",
+        "esperado": null,
+        "devolvido": null,
+        "melhor_score": [
+          "endoscopia",
+          0.044
+        ],
+        "ok": true
+      },
+      {
+        "consulta": "vacina da gripe",
+        "esperado": null,
+        "devolvido": null,
+        "melhor_score": [
+          "exame-urina",
+          0.06
+        ],
+        "ok": true
+      }
+    ]
+  },
+  "varredura_calibracao": [
+    {
+      "limiar": 0.1,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 0.429,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.12,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 0.429,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.14,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 0.571,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.16,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 0.714,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.18,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 0.857,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.2,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 0.857,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.22,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 1.0,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.24,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 1.0,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.26,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 1.0,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.28,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 1.0,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.3,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 1.0,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.32,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 1.0,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.34,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 1.0,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.36,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 1.0,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.38,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 1.0,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    },
+    {
+      "limiar": 0.4,
+      "acerto@1": 1.0,
+      "acerto@3": 1.0,
+      "mrr": 1.0,
+      "nao_encontrado_correto": 1.0,
+      "n_positivos": 35,
+      "n_fora_da_base": 7
+    }
+  ]
+}
