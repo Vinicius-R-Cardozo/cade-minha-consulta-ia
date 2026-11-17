@@ -25,7 +25,7 @@ ARQ_METADADOS = DIR_MODELOS / "modelo_falta.json"
 IA_MODO = os.getenv("VAGACERTA_IA", "n8n")  # "n8n" ou "desligada"
 N8N_WEBHOOK_URL = os.getenv("VAGACERTA_N8N_WEBHOOK_URL", "http://localhost:5678/webhook/vagacerta-mensagem")
 N8N_TOKEN = os.getenv("VAGACERTA_N8N_TOKEN", "")
-N8N_TIMEOUT_S = float(os.getenv("VAGACERTA_N8N_TIMEOUT_S", "40"))
+N8N_TIMEOUT_S = float(os.getenv("VAGACERTA_N8N_TIMEOUT_S", "50"))
 
 # Token para o backend Java chamar este serviço. Vazio = sem exigência (só para desenvolvimento).
 TOKEN_SERVICO = os.getenv("VAGACERTA_TOKEN_SERVICO", "")

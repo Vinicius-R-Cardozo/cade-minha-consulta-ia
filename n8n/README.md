@@ -6,9 +6,12 @@ com o **Google Gemini**. O serviço Python chama este workflow por webhook.
 ```
 Webhook (POST /webhook/vagacerta-mensagem)
    └─ IF: token X-Vagacerta-Token confere?
-        ├─ sim → HTTP Request: Gemini generateContent (JSON com schema)
-        │          └─ Code: trata erro HTTP, bloqueio, JSON inválido
-        │               └─ Respond: { ok, modelo, resultado } ou { ok: false, erro }
+        ├─ sim → HTTP Request: Gemini modelo principal (até 20 s)
+        │          └─ IF: principal respondeu 200?
+        │               ├─ sim ──────────────────────────────┐
+        │               └─ não → HTTP Request: modelo reserva ┤
+        │                                                      └─ Code: trata erro, bloqueio, JSON inválido
+        │                                                           └─ Respond: { ok, modelo, via_reserva, resultado }
         └─ não → Respond 401
 ```
 
@@ -16,9 +19,15 @@ Webhook (POST /webhook/vagacerta-mensagem)
 |---|---|
 | Recebe pedido do Vaga Certa | Webhook que recebe `{ sistema, prompt, schema }` do Python. |
 | Token confere? | Compara o cabeçalho `X-Vagacerta-Token` com `VAGACERTA_N8N_TOKEN`. Só o serviço Vaga Certa chama o workflow. |
-| Gemini gera a mensagem | Chama `generateContent` com instrução de sistema, prompt, `responseMimeType: application/json`, `responseSchema` e temperatura 0,3. A chave vai no cabeçalho `x-goog-api-key` e vem da variável de ambiente `GEMINI_API_KEY`. |
-| Confere resposta do Gemini | Converte a resposta no contrato do Python e transforma erro HTTP, bloqueio de segurança (`finishReason` diferente de `STOP`) e JSON inválido em `{ ok: false, erro }`. |
+| Gemini modelo principal | Chama `generateContent` do `GEMINI_MODELO` (padrão `gemini-3.8-flash`) com instrução de sistema, prompt, `responseMimeType: application/json`, `responseSchema` e temperatura 0,3. A chave vai no cabeçalho `x-goog-api-key` e vem da variável de ambiente `GEMINI_API_KEY`. Limite de 20 s. |
+| Principal respondeu? | Se o principal devolveu erro (429 de cota, 503 de "alta demanda") ou estourou o tempo, desvia para a reserva. |
+| Gemini modelo reserva | Mesma chamada com `GEMINI_MODELO_RESERVA` (padrão `gemini-3.5-flash-lite`), modelo menor e menos disputado no plano gratuito. |
+| Confere resposta do Gemini | Converte a resposta no contrato do Python (indicando se veio da reserva) e transforma erro de rede, erro HTTP, bloqueio de segurança (`finishReason` diferente de `STOP`) e JSON inválido em `{ ok: false, erro }`. |
 | Devolve para o Vaga Certa | Responde ao webhook. |
+
+Por que existe o modelo reserva: no plano gratuito, os modelos Flash maiores respondem com frequência
+"503 — alta demanda" ou demoram mais de 30 s (medido em 17/11/2026). O desvio fica no n8n, onde é visível e fácil
+de ajustar, e o Python só vê uma resposta. Se os dois falharem, o Python usa o template.
 
 Por que o prompt fica no Python e não no n8n: as regras do prompt, o schema e a validação da saída são testados
 automaticamente (`pytest`). O n8n cuida da integração com o provedor de IA e da chave. Trocar o Gemini por outro

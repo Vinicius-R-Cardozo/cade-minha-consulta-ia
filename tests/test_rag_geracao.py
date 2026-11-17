@@ -76,6 +76,21 @@ def test_nome_com_caracteres_estranhos_e_limpo():
     assert "<" not in msg.sms and ">" not in msg.app
 
 
+@pytest.mark.parametrize("frase,barrada", [
+    ("Você tem uma consulta marcada", False),
+    ("Você tem consulta em urologia", False),
+    ("Você tem um agendamento:", False),
+    ("Você tem ULTRASSOM DE ABDOME TOTAL em", False),
+    ("Você tem diabetes e precisa", True),
+    ("Você está com infecção", True),
+])
+def test_frase_de_condicao_so_barra_diagnostico(frase, barrada):
+    c = consulta("Ultrassom de abdome total")
+    corpo = f"Olá, {{nome}}! {frase} {DIA.strftime('%d/%m')} 08:30. Responda SIM ou NAO."
+    problemas = validar(corpo, corpo, c)
+    assert bool([p for p in problemas if "condição de saúde" in p]) == barrada
+
+
 @pytest.mark.parametrize("texto,trecho", [
     ("Olá, {nome}! Você tem câncer. dd", "câncer"),
     ("Olá, {nome}! Pague no PIX", "pix"),

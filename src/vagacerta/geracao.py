@@ -35,9 +35,25 @@ DIAS_SEMANA = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", 
 
 # Palavras que indicariam diagnóstico, prescrição ou promessa clínica: a mensagem não pode conter.
 PROIBIDOS = [
-    r"\bdiagn[oó]stic", r"\bvoc[eê] (tem|est[aá] com)\b", r"(?<!não )(?<!nao )\bsuspend[ae]\b", r"\bmg\b",
+    r"\bdiagn[oó]stic", r"(?<!não )(?<!nao )\bsuspend[ae]\b", r"\bmg\b",
     r"\btome \d", r"\bdose de\b", r"\bcura\b", r"\bgrave\b", r"\bc[aâ]ncer\b",
 ]
+# "Você tem ..." / "você está com ..." só é aceito quando o que vem depois é o agendamento
+# ("você tem uma consulta", "você tem ELETROCARDIOGRAMA em 22/11"); "você tem diabetes" é barrado.
+FRASE_CONDICAO = re.compile(r"\bvoc[eê] (?:tem|est[aá] com) (?:uma? |sua |seu |o |a )?(\w+)")
+PALAVRAS_AGENDAMENTO = {"consulta", "exame", "vaga", "atendimento", "horario", "retorno", "agendamento",
+                        "marcacao", "compromisso", "procedimento"}
+
+
+def frase_de_condicao(texto_minusculo: str, procedimento: str) -> str | None:
+    """Devolve a frase suspeita de atribuir uma condição de saúde ao paciente, ou None."""
+    proc = normalizar(procedimento).split()
+    for m in FRASE_CONDICAO.finditer(texto_minusculo):
+        palavra = normalizar(m.group(1))
+        if palavra in PALAVRAS_AGENDAMENTO or (proc and palavra == proc[0]):
+            continue
+        return m.group(0)
+    return None
 # Mensagem com link ou pedido de senha/pagamento parece golpe: bloqueamos.
 SUSPEITOS = [
     r"https?://", r"www\.", r"\bpix\b",
@@ -172,6 +188,9 @@ def validar(texto_sms: str, texto_app: str, c: DadosConsulta) -> list[str]:
         for padrao in PROIBIDOS + SUSPEITOS:
             if re.search(padrao, baixo):
                 problemas.append(f"{nome}: termo não permitido ({padrao})")
+        frase = frase_de_condicao(baixo, c.procedimento)
+        if frase:
+            problemas.append(f"{nome}: frase que atribui condição de saúde ({frase!r})")
     return problemas
 
 
