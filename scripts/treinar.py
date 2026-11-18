@@ -1,8 +1,8 @@
 """Treina o modelo de previsão de falta e gera as evidências de avaliação.
 
 Uso:
-  python scripts/treinar.py                 # usa data/raw/KaggleV2-May-2016.csv se existir; senão, a base sintética
-  python scripts/treinar.py --sintetico     # força a base sintética
+  python scripts/treinar.py                 # treina com a base real (data/KaggleV2-May-2016.csv)
+  python scripts/treinar.py --sintetico     # treina com a base sintética (só para testar o pipeline)
 Saídas: modelos/modelo_falta.joblib, modelos/modelo_falta.json e evidencias/modelo_*.{json,md,png}
 """
 
@@ -34,7 +34,9 @@ NOMES = {"baseline_taxa_media": "Baseline (taxa média)", "regressao_logistica":
 
 
 def escolher_base(forcar_sintetico: bool) -> tuple[Path, str]:
-    if not forcar_sintetico and config.CSV_KAGGLE.exists():
+    if not forcar_sintetico:
+        if not config.CSV_KAGGLE.exists():
+            sys.exit(f"Base não encontrada em {config.CSV_KAGGLE}. Ela vem no repositório; confira o git clone.")
         return config.CSV_KAGGLE, "kaggle_medical_appointment_no_shows_vitoria_2016"
     if not config.CSV_SINTETICO.exists():
         subprocess.run([sys.executable, str(RAIZ / "scripts" / "gerar_sintetico.py")], check=True)
@@ -103,7 +105,7 @@ def relatorio_md(meta, comparacao, grupos, importancia, origem) -> str:
     ]
     if origem == "sintetica":
         partes += ["> **Base sintética.** Estes números só mostram que o pipeline funciona. "
-                   "Para o resultado real, coloque o CSV do Kaggle em `data/raw/` e rode de novo.", ""]
+                   "Para o resultado real, rode `python scripts/treinar.py` sem `--sintetico`.", ""]
     partes += [
         "## Divisão temporal",
         "",

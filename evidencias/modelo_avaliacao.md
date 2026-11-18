@@ -1,6 +1,6 @@
 # Avaliação do modelo de previsão de falta
 
-Gerado por `scripts/treinar.py` em 2026-11-16. Base: **kaggle_medical_appointment_no_shows_vitoria_2016**.
+Gerado por `scripts/treinar.py` em 2026-11-18. Base: **kaggle_medical_appointment_no_shows_vitoria_2016**.
 
 ## Divisão temporal
 

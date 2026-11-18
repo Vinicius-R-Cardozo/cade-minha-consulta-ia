@@ -1,7 +1,7 @@
 {
   "metadados": {
     "modelo": "gradient_boosting",
-    "treinado_em": "2026-11-16",
+    "treinado_em": "2026-11-18",
     "origem_dados": "kaggle_medical_appointment_no_shows_vitoria_2016",
     "atributos": [
       "idade",

@@ -11,7 +11,7 @@ RAIZ = Path(__file__).resolve().parents[2]
 load_dotenv(RAIZ / ".env")
 
 DIR_DADOS = RAIZ / "data"
-CSV_KAGGLE = DIR_DADOS / "raw" / "KaggleV2-May-2016.csv"
+CSV_KAGGLE = DIR_DADOS / "KaggleV2-May-2016.csv"
 CSV_SINTETICO = DIR_DADOS / "sintetico" / "consultas_sinteticas.csv"
 DIR_BASE_CONHECIMENTO = RAIZ / "base_conhecimento"
 DIR_MODELOS = RAIZ / "modelos"

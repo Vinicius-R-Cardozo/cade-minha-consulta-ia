@@ -109,8 +109,8 @@ Fluxo da mensagem, passo a passo:
 
 ## Dados
 
-- **Previsão de falta:** [Medical Appointment No Shows](https://www.kaggle.com/datasets/joniarroba/noshowappointments), cerca de 110 mil consultas da rede pública de Vitória (ES), 2016, anonimizadas na origem. Detalhes e tratamento em [data/README.md](data/README.md).
-- **Base sintética:** `scripts/gerar_sintetico.py` gera dados falsos no mesmo formato, usados nos testes e quando a base do Kaggle não está presente.
+- **Previsão de falta:** base real [Medical Appointment No Shows](https://www.kaggle.com/datasets/joniarroba/noshowappointments) (Kaggle), com 110.527 consultas da rede pública de Vitória (ES), de abril a junho de 2016, anonimizadas na origem. O arquivo está no repositório, em [data/KaggleV2-May-2016.csv](data/KaggleV2-May-2016.csv), e é com ele que o modelo foi treinado e avaliado. Detalhes e tratamento em [data/README.md](data/README.md).
+- **Base sintética (só para testes):** os testes automáticos geram dados falsos no mesmo formato, para rodar rápido e sem depender da base real. Ela não entra no modelo nem nos resultados.
 - **Preparo de exames:** 16 documentos em [base_conhecimento/](base_conhecimento/), escritos pela equipe a partir de orientações públicas gerais. Em uso real, precisam ser revisados e aprovados pela equipe técnica da secretaria.
 
 Preparação para o ML: limpeza de registros impossíveis e cálculo da antecedência. Também calculamos o histórico de
@@ -136,7 +136,7 @@ cp .env.example .env
 
 IA generativa (opcional; sem ela tudo funciona com o template): instale o [n8n](https://docs.n8n.io/) com `npm install -g n8n` (Node 24), crie uma chave gratuita do Gemini em https://aistudio.google.com/apikey, preencha `GEMINI_API_KEY` e `CADE_N8N_TOKEN` no `.env` e suba o n8n com `powershell -File scripts/n8n_iniciar.ps1`. O script importa e ativa o workflow sozinho. Detalhes em [n8n/README.md](n8n/README.md).
 
-O modelo versionado em `modelos/` já foi treinado com a base do Kaggle. Para retreinar, baixe `KaggleV2-May-2016.csv` (ver [data/README.md](data/README.md)) para `data/raw/`; sem ele, o treino usa a base sintética.
+O modelo em `modelos/` já vem treinado, então a API funciona sem treinar nada. Para treinar de novo, `python scripts/treinar.py` usa a base real que está em `data/`; não é preciso baixar nada.
 
 ```bash
 python scripts/treinar.py
@@ -269,7 +269,7 @@ desvios do workflow: erro HTTP 500, bloqueio de segurança (`SAFETY`), JSON inv�
 ## Uso responsável e LGPD
 
 - **Minimização:** a rota de risco não recebe nome, CPF, telefone nem endereço. A mensagem recebe só o primeiro nome, que é inserido localmente e **nunca vai para a API da IA**. Isso é verificado em teste.
-- **Dado sensível (LGPD art. 11):** o projeto usa dados anonimizados (Kaggle) e sintéticos. Nenhum dado real de paciente está no repositório.
+- **Dado sensível (LGPD art. 11):** o modelo usa a base pública do Kaggle, já anonimizada na origem (sem nome, CPF ou endereço), e os testes usam dados sintéticos. Nenhum dado que identifique um paciente está no repositório.
 - **Credenciais:** só em `.env`, que está no `.gitignore`. O `.env.example` não tem valores.
 - **Sem decisão automática sobre acesso:** o risco só muda a intensidade do lembrete. Ninguém perde a vaga por ter risco alto.
 - **Equidade:** o bairro foi retirado do modelo para não penalizar regiões. O relatório mostra sinalização e recall por gênero e faixa etária. Gênero ficou equilibrado (recall de 47,8% e 47,7%). A diferença por idade foi encontrada e reduzida com a cota mínima por faixa.
@@ -297,7 +297,7 @@ desvios do workflow: erro HTTP 500, bloqueio de segurança (`SAFETY`), JSON inv�
 
 ```
 base_conhecimento/   documentos de preparo (fonte do RAG)
-data/                instruções da base do Kaggle; base sintética gerada
+data/                base real do Kaggle (KaggleV2-May-2016.csv) e a descrição dela
 evidencias/          relatórios, métricas e gráficos gerados pelos scripts
 modelos/             modelo treinado (.joblib) e metadados
 scripts/             treino, avaliações, gerador de dados sintéticos e n8n_iniciar.ps1

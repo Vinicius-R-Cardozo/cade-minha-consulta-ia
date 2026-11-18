@@ -1,7 +1,8 @@
 """Leitura, limpeza e engenharia de atributos da base de consultas.
 
 Base principal: "Medical Appointment No Shows" (Kaggle), ~110 mil consultas da rede pública de Vitória (ES), 2016.
-A base sintética (scripts/gerar_sintetico.py) tem o mesmo formato e serve para testes e para rodar sem a base real.
+O CSV está no repositório, em data/KaggleV2-May-2016.csv. A base sintética (scripts/gerar_sintetico.py) tem o mesmo
+formato e é usada só nos testes automáticos.
 """
 
 from __future__ import annotations
