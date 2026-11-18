@@ -1,0 +1,2 @@
+# A base precisa ficar byte a byte igual ao original (SHA-256 em data/README.md)
+*.csv -text
