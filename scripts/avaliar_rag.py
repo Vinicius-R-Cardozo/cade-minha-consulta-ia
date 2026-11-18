@@ -16,8 +16,8 @@ import numpy as np
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ / "src"))
 sys.stdout.reconfigure(encoding="utf-8")
-from vagacerta import config  # noqa: E402
-from vagacerta.rag import SCORE_MINIMO, BaseConhecimento  # noqa: E402
+from cademinhaconsulta import config  # noqa: E402
+from cademinhaconsulta.rag import SCORE_MINIMO, BaseConhecimento  # noqa: E402
 
 # (texto da busca, id esperado) — None = não existe orientação na base, o certo é não devolver nada.
 # CALIBRACAO: usado para escolher o limiar e ajustar os termos dos documentos.

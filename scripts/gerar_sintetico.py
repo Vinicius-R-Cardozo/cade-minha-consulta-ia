@@ -18,7 +18,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.stdout.reconfigure(encoding="utf-8")
-from vagacerta import config  # noqa: E402
+from cademinhaconsulta import config  # noqa: E402
 
 
 def gerar(n: int = 30000, seed: int = 7) -> pd.DataFrame:

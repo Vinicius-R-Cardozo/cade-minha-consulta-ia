@@ -1,4 +1,4 @@
-"""API do serviço de IA do Vaga Certa (FastAPI).
+"""API do serviço de IA do Cadê Minha Consulta (FastAPI).
 
 Quem chama: o backend Java (Spring Boot). O app mobile não fala direto com este serviço.
 - POST /v1/risco-falta          -> probabilidade de falta e faixa de risco (ML)
@@ -24,7 +24,7 @@ from .modelo import ModeloFalta
 from .rag import BaseConhecimento
 
 app = FastAPI(
-    title="Vaga Certa — serviço de IA",
+    title="Cadê Minha Consulta — serviço de IA",
     version=__version__,
     description="Previsão de falta (ML), orientações de preparo (RAG) e mensagens em linguagem simples (IA generativa).",
 )
@@ -46,7 +46,7 @@ def orquestrador() -> Orquestrador:
 
 
 def exigir_token(x_service_token: str | None = Header(default=None)) -> None:
-    """Autenticação serviço-a-serviço. Em produção VAGACERTA_TOKEN_SERVICO é obrigatório."""
+    """Autenticação serviço-a-serviço. Em produção CADE_TOKEN_SERVICO é obrigatório."""
     esperado = config.TOKEN_SERVICO
     if esperado and not (x_service_token and hmac.compare_digest(x_service_token, esperado)):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "token de serviço inválido ou ausente")

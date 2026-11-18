@@ -135,7 +135,7 @@
         "devolvido": "glicemia-jejum",
         "melhor_score": [
           "glicemia-jejum",
-          0.757
+          0.758
         ],
         "ok": true
       },
@@ -155,7 +155,7 @@
         "devolvido": "colesterol-triglicerides",
         "melhor_score": [
           "colesterol-triglicerides",
-          0.657
+          0.656
         ],
         "ok": true
       },
@@ -235,7 +235,7 @@
         "devolvido": "consulta-especialista",
         "melhor_score": [
           "consulta-especialista",
-          0.499
+          0.5
         ],
         "ok": true
       },
@@ -245,7 +245,7 @@
         "devolvido": "confirmar-liberar-vaga",
         "melhor_score": [
           "confirmar-liberar-vaga",
-          0.518
+          0.526
         ],
         "ok": true
       },
@@ -294,7 +294,7 @@
         "esperado": null,
         "devolvido": null,
         "melhor_score": [
-          "colesterol-triglicerides",
+          "ultrassom-pelvico-rins",
           0.03
         ],
         "ok": true
@@ -345,7 +345,7 @@
         "devolvido": "teste-ergometrico",
         "melhor_score": [
           "teste-ergometrico",
-          0.41
+          0.404
         ],
         "ok": false
       }
@@ -596,7 +596,7 @@
         "devolvido": "colesterol-triglicerides",
         "melhor_score": [
           "colesterol-triglicerides",
-          0.767
+          0.768
         ],
         "ok": true
       },
@@ -616,7 +616,7 @@
         "devolvido": "exames-de-sangue",
         "melhor_score": [
           "exames-de-sangue",
-          0.556
+          0.555
         ],
         "ok": true
       },
@@ -706,7 +706,7 @@
         "devolvido": "confirmar-liberar-vaga",
         "melhor_score": [
           "confirmar-liberar-vaga",
-          0.699
+          0.731
         ],
         "ok": true
       },

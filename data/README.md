@@ -9,7 +9,7 @@
 - Como usar: baixe `KaggleV2-May-2016.csv` (precisa de conta no Kaggle) e coloque em `data/raw/`.
   O arquivo não vai para o Git. Confira a licença na página antes de redistribuir.
 
-Problemas conhecidos tratados em `src/vagacerta/dados.py`:
+Problemas conhecidos tratados em `src/cademinhaconsulta/dados.py`:
 
 | Problema | Tratamento |
 |---|---|

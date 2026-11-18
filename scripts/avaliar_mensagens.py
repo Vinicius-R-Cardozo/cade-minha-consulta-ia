@@ -26,9 +26,9 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ / "src"))
 sys.stdout.reconfigure(encoding="utf-8")
-from vagacerta import config  # noqa: E402
-from vagacerta.geracao import DadosConsulta, GeradorN8n, Orquestrador, validar  # noqa: E402
-from vagacerta.rag import BaseConhecimento  # noqa: E402
+from cademinhaconsulta import config  # noqa: E402
+from cademinhaconsulta.geracao import DadosConsulta, GeradorN8n, Orquestrador, validar  # noqa: E402
+from cademinhaconsulta.rag import BaseConhecimento  # noqa: E402
 
 NOME_TESTE = "Marilene"
 

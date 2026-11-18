@@ -1,4 +1,4 @@
-# Vaga Certa — IA contra a falta em consultas do SUS
+# Cadê Minha Consulta — IA contra a falta em consultas do SUS
 
 Global Solution 2026/2 · CitizenTech · **Disruptive Architectures: IoT, IoB & Generative IA**
 
@@ -19,9 +19,9 @@ Enquanto isso, quem está atrás na fila continua esperando. Cerca de 1 em cada 
 26% de faltas, Campo Largo (PR) 1 em 4, e Porto Alegre perdeu mais de 45 mil consultas especializadas em 2025.
 Parte das faltas vem de quem esquece. Parte vem de quem chega sem o preparo certo e não consegue fazer o exame.
 
-## O que esta parte do Vaga Certa faz
+## O que esta parte do Cadê Minha Consulta faz
 
-São três peças de IA que o backend do Vaga Certa (Java/Spring) chama:
+São três peças de IA que o backend do Cadê Minha Consulta (Java/Spring) chama:
 
 | Peça | Técnica | Para quem | O que entrega |
 |---|---|---|---|
@@ -47,7 +47,7 @@ flowchart LR
         APP[App React Native]
         SMS[SMS / WhatsApp]
     end
-    subgraph Backend[Backend Vaga Certa - Java Spring]
+    subgraph Backend[Backend Cadê Minha Consulta - Java Spring]
         API_JAVA[API REST + JWT]
         RMQ[(RabbitMQ<br/>vaga.liberada)]
     end
@@ -59,7 +59,7 @@ flowchart LR
         VAL[Validação<br/>regras + fundamentação]
         TPL[Template<br/>sem IA]
     end
-    subgraph N8N[n8n - workflow n8n/vagacerta-mensagem.json]
+    subgraph N8N[n8n - workflow n8n/cade-minha-consulta-mensagem.json]
         WH[Webhook + token]
         GEM_CALL[HTTP Request<br/>Gemini principal]
         GEM_RES[HTTP Request<br/>Gemini reserva]
@@ -123,7 +123,7 @@ Pré-requisito: Python 3.11 ou mais novo.
 
 ```bash
 git clone <link-do-repositorio>
-cd vaga-certa-ia
+cd cade-minha-consulta-ia
 python -m venv .venv
 ```
 
@@ -134,7 +134,7 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-IA generativa (opcional; sem ela tudo funciona com o template): instale o [n8n](https://docs.n8n.io/) com `npm install -g n8n` (Node 24), crie uma chave gratuita do Gemini em https://aistudio.google.com/apikey, preencha `GEMINI_API_KEY` e `VAGACERTA_N8N_TOKEN` no `.env` e suba o n8n com `powershell -File scripts/n8n_iniciar.ps1`. O script importa e ativa o workflow sozinho. Detalhes em [n8n/README.md](n8n/README.md).
+IA generativa (opcional; sem ela tudo funciona com o template): instale o [n8n](https://docs.n8n.io/) com `npm install -g n8n` (Node 24), crie uma chave gratuita do Gemini em https://aistudio.google.com/apikey, preencha `GEMINI_API_KEY` e `CADE_N8N_TOKEN` no `.env` e suba o n8n com `powershell -File scripts/n8n_iniciar.ps1`. O script importa e ativa o workflow sozinho. Detalhes em [n8n/README.md](n8n/README.md).
 
 O modelo versionado em `modelos/` já foi treinado com a base do Kaggle. Para retreinar, baixe `KaggleV2-May-2016.csv` (ver [data/README.md](data/README.md)) para `data/raw/`; sem ele, o treino usa a base sintética.
 
@@ -160,7 +160,7 @@ curl -X POST localhost:8000/v1/mensagens/confirmacao -H "Content-Type: applicati
 ```
 
 Rotas: `GET /health`, `POST /v1/risco-falta`, `POST /v1/risco-falta/lote` (até 500), `POST /v1/mensagens/confirmacao`
-e `POST /v1/preparo/buscar`. Se `VAGACERTA_TOKEN_SERVICO` estiver definido, as rotas `/v1` exigem o cabeçalho
+e `POST /v1/preparo/buscar`. Se `CADE_TOKEN_SERVICO` estiver definido, as rotas `/v1` exigem o cabeçalho
 `X-Service-Token`.
 
 ## Avaliação
@@ -219,21 +219,26 @@ Usamos 23 procedimentos novos, escritos depois de toda a calibração, incluindo
 | **Preparo de outro exame (erro grave)** | **0/23** |
 | Injeção no campo procedimento repetida na mensagem | não |
 
-### Com IA generativa (n8n + Gemini) — [evidencias/mensagens_avaliacao_ia.md](evidencias/mensagens_avaliacao_ia.md)
+### Com IA generativa (n8n + Gemini)
 
-Os mesmos 23 procedimentos passaram pelo caminho real Python → n8n → Gemini (17/11/2026). O `gemini-3.8-flash` estava
-sobrecarregado no plano gratuito, então as respostas vieram do modelo reserva `gemini-3.5-flash-lite`.
+Os mesmos 23 procedimentos passaram pelo caminho real Python → n8n → Gemini em duas rodadas. O `gemini-3.8-flash`
+estava sobrecarregado no plano gratuito nas duas, então as respostas vieram do modelo reserva `gemini-3.5-flash-lite`.
 
-| Indicador | Sem IA (template) | Com IA (n8n + Gemini) |
-|---|---|---|
-| Mensagens que passam em todas as regras | 23/23 | 23/23 |
-| Mensagens escritas pela IA | — | 22/23 |
-| Preparo correto | 8/23 | **12/23** |
-| Exame fora da base, sem preparo (correto) | 9/23 | 9/23 |
-| Preparo omitido, mas havia orientação (erro seguro) | 6/23 | **2/23** |
-| **Preparo de outro exame (erro grave)** | **0/23** | **0/23** |
-| Nome do paciente enviado à IA | não | não |
-| Latência mediana / máxima | ~0 ms | 2,6 s / 23 s |
+| Indicador | Sem IA (template) | Com IA, 17/11 ([relatório](evidencias/mensagens_avaliacao_ia_2026-11-17.md)) | Com IA, 18/11 ([relatório](evidencias/mensagens_avaliacao_ia.md)) |
+|---|---|---|---|
+| Mensagens que passam em todas as regras | 23/23 | 23/23 | 23/23 |
+| Mensagens escritas pela IA | — | 22/23 | 15/23 |
+| Preparo correto | 8/23 | **12/23** | 10/23 |
+| Exame fora da base, sem preparo (correto) | 9/23 | 9/23 | 9/23 |
+| Preparo omitido, mas havia orientação (erro seguro) | 6/23 | **2/23** | 4/23 |
+| **Preparo de outro exame (erro grave)** | **0/23** | **0/23** | **0/23** |
+| Nome do paciente enviado à IA | não | não | não |
+| Latência mediana / máxima | ~0 ms | 2,6 s / 23 s | 21,7 s / 26 s |
+
+Na rodada de 18/11, os dois modelos do Gemini falharam em 7 chamadas, por congestionamento do plano gratuito, e o
+template cobriu todas. Em mais 1 caso, o texto da IA passou do limite de tamanho e também foi trocado pelo template.
+Por isso essa rodada tem menos mensagens da IA. O que não variou entre as rodadas é a segurança: nenhuma mensagem
+inválida e nenhum preparo de outro exame.
 
 Como interpretar:
 
@@ -296,7 +301,7 @@ data/                instruções da base do Kaggle; base sintética gerada
 evidencias/          relatórios, métricas e gráficos gerados pelos scripts
 modelos/             modelo treinado (.joblib) e metadados
 scripts/             treino, avaliações, gerador de dados sintéticos e n8n_iniciar.ps1
-src/vagacerta/       código: dados, modelo, rag, geracao (IA generativa) e api
+src/cademinhaconsulta/       código: dados, modelo, rag, geracao (IA generativa) e api
 tests/               testes automatizados (pytest) e Gemini falso para testar o n8n
 n8n/                 workflow do n8n (IA generativa com Gemini) e instruções
 ```

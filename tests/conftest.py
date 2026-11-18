@@ -20,9 +20,9 @@ def base_sintetica(tmp_path_factory):
 @pytest.fixture(scope="session")
 def modelo_treinado(base_sintetica, tmp_path_factory):
     """Treina um modelo pequeno numa pasta temporária (não mexe em modelos/ do projeto)."""
-    from vagacerta import config
-    from vagacerta.dados import preparar_base, separar_por_tempo
-    from vagacerta.modelo import treinar
+    from cademinhaconsulta import config
+    from cademinhaconsulta.dados import preparar_base, separar_por_tempo
+    from cademinhaconsulta.modelo import treinar
 
     pasta = tmp_path_factory.mktemp("modelos")
     mp = pytest.MonkeyPatch()

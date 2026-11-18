@@ -1,23 +1,23 @@
 {
-  "id": "VagaCertaMsg0001",
-  "name": "Vaga Certa - mensagem de confirmação (Gemini)",
+  "id": "CadeConsultaMsg1",
+  "name": "Cadê Minha Consulta - mensagem de confirmação (Gemini)",
   "nodes": [
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "vagacerta-mensagem",
+        "path": "cade-minha-consulta-mensagem",
         "responseMode": "responseNode",
         "options": {}
       },
       "id": "5b1f7a2e-0c1d-4a3b-9e01-000000000001",
-      "name": "Recebe pedido do Vaga Certa",
+      "name": "Recebe pedido do Cadê Minha Consulta",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
         0,
         300
       ],
-      "webhookId": "7c9d0e1f-2a3b-4c5d-8e9f-vagacerta001"
+      "webhookId": "7c9d0e1f-2a3b-4c5d-8e9f-cademinhaconsulta001"
     },
     {
       "parameters": {
@@ -30,8 +30,8 @@
           "conditions": [
             {
               "id": "c0a8b1d2-0000-4000-8000-000000000001",
-              "leftValue": "={{ $json.headers['x-vagacerta-token'] || '' }}",
-              "rightValue": "={{ $env.VAGACERTA_N8N_TOKEN || '' }}",
+              "leftValue": "={{ $json.headers['x-cade-token'] || '' }}",
+              "rightValue": "={{ $env.CADE_N8N_TOKEN || '' }}",
               "operator": {
                 "type": "string",
                 "operation": "equals"
@@ -134,7 +134,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ systemInstruction: { parts: [{ text: $('Recebe pedido do Vaga Certa').first().json.body.sistema }] }, contents: [{ role: 'user', parts: [{ text: $('Recebe pedido do Vaga Certa').first().json.body.prompt }] }], generationConfig: { responseMimeType: 'application/json', responseSchema: $('Recebe pedido do Vaga Certa').first().json.body.schema, temperature: 0.3, maxOutputTokens: 4096 } }) }}",
+        "jsonBody": "={{ JSON.stringify({ systemInstruction: { parts: [{ text: $('Recebe pedido do Cadê Minha Consulta').first().json.body.sistema }] }, contents: [{ role: 'user', parts: [{ text: $('Recebe pedido do Cadê Minha Consulta').first().json.body.prompt }] }], generationConfig: { responseMimeType: 'application/json', responseSchema: $('Recebe pedido do Cadê Minha Consulta').first().json.body.schema, temperature: 0.3, maxOutputTokens: 4096 } }) }}",
         "options": {
           "timeout": 20000,
           "response": {
@@ -175,7 +175,7 @@
         "options": {}
       },
       "id": "5b1f7a2e-0c1d-4a3b-9e01-000000000005",
-      "name": "Devolve para o Vaga Certa",
+      "name": "Devolve para o Cadê Minha Consulta",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
@@ -202,7 +202,7 @@
     }
   ],
   "connections": {
-    "Recebe pedido do Vaga Certa": {
+    "Recebe pedido do Cadê Minha Consulta": {
       "main": [
         [
           {
@@ -275,7 +275,7 @@
       "main": [
         [
           {
-            "node": "Devolve para o Vaga Certa",
+            "node": "Devolve para o Cadê Minha Consulta",
             "type": "main",
             "index": 0
           }

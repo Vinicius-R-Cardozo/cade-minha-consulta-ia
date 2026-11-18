@@ -25,9 +25,9 @@ from sklearn.metrics import precision_recall_curve, roc_curve  # noqa: E402
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ / "src"))
 sys.stdout.reconfigure(encoding="utf-8")
-from vagacerta import config  # noqa: E402
-from vagacerta.dados import montar_atributos, preparar_base, separar_por_tempo  # noqa: E402
-from vagacerta.modelo import avaliar_por_grupo, treinar  # noqa: E402
+from cademinhaconsulta import config  # noqa: E402
+from cademinhaconsulta.dados import montar_atributos, preparar_base, separar_por_tempo  # noqa: E402
+from cademinhaconsulta.modelo import avaliar_por_grupo, treinar  # noqa: E402
 
 NOMES = {"baseline_taxa_media": "Baseline (taxa média)", "regressao_logistica": "Regressão logística",
          "gradient_boosting": "Gradient boosting"}

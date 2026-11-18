@@ -3,8 +3,8 @@ from datetime import date, timedelta
 import pytest
 from fastapi.testclient import TestClient
 
-from vagacerta import api, config
-from vagacerta.geracao import Orquestrador
+from cademinhaconsulta import api, config
+from cademinhaconsulta.geracao import Orquestrador
 
 
 @pytest.fixture()

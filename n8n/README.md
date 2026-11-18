@@ -1,11 +1,11 @@
-# Workflow n8n — IA generativa do Vaga Certa
+# Workflow n8n — IA generativa do Cadê Minha Consulta
 
-O arquivo [vagacerta-mensagem.json](vagacerta-mensagem.json) é o workflow que gera a mensagem de confirmação
+O arquivo [cade-minha-consulta-mensagem.json](cade-minha-consulta-mensagem.json) é o workflow que gera a mensagem de confirmação
 com o **Google Gemini**. O serviço Python chama este workflow por webhook.
 
 ```
-Webhook (POST /webhook/vagacerta-mensagem)
-   └─ IF: token X-Vagacerta-Token confere?
+Webhook (POST /webhook/cade-minha-consulta-mensagem)
+   └─ IF: token X-Cade-Token confere?
         ├─ sim → HTTP Request: Gemini modelo principal (até 20 s)
         │          └─ IF: principal respondeu 200?
         │               ├─ sim ──────────────────────────────┐
@@ -17,13 +17,13 @@ Webhook (POST /webhook/vagacerta-mensagem)
 
 | Nó | O que faz |
 |---|---|
-| Recebe pedido do Vaga Certa | Webhook que recebe `{ sistema, prompt, schema }` do Python. |
-| Token confere? | Compara o cabeçalho `X-Vagacerta-Token` com `VAGACERTA_N8N_TOKEN`. Só o serviço Vaga Certa chama o workflow. |
+| Recebe pedido do Cadê Minha Consulta | Webhook que recebe `{ sistema, prompt, schema }` do Python. |
+| Token confere? | Compara o cabeçalho `X-Cade-Token` com `CADE_N8N_TOKEN`. Só o serviço Cadê Minha Consulta chama o workflow. |
 | Gemini modelo principal | Chama `generateContent` do `GEMINI_MODELO` (padrão `gemini-3.8-flash`) com instrução de sistema, prompt, `responseMimeType: application/json`, `responseSchema` e temperatura 0,3. A chave vai no cabeçalho `x-goog-api-key` e vem da variável de ambiente `GEMINI_API_KEY`. Limite de 20 s. |
 | Principal respondeu? | Se o principal devolveu erro (429 de cota, 503 de "alta demanda") ou estourou o tempo, desvia para a reserva. |
 | Gemini modelo reserva | Mesma chamada com `GEMINI_MODELO_RESERVA` (padrão `gemini-3.5-flash-lite`), modelo menor e menos disputado no plano gratuito. |
 | Confere resposta do Gemini | Converte a resposta no contrato do Python (indicando se veio da reserva) e transforma erro de rede, erro HTTP, bloqueio de segurança (`finishReason` diferente de `STOP`) e JSON inválido em `{ ok: false, erro }`. |
-| Devolve para o Vaga Certa | Responde ao webhook. |
+| Devolve para o Cadê Minha Consulta | Responde ao webhook. |
 
 Por que existe o modelo reserva: no plano gratuito, os modelos Flash maiores respondem com frequência
 "503 — alta demanda" ou demoram mais de 30 s (medido em 17/11/2026). O desvio fica no n8n, onde é visível e fácil
@@ -38,7 +38,7 @@ modelo é mexer só neste workflow.
 Requisitos: Node 24 e `npm install -g n8n`.
 
 1. Crie uma chave gratuita do Gemini em https://aistudio.google.com/apikey.
-2. No `.env` da raiz do projeto, preencha `GEMINI_API_KEY` e `VAGACERTA_N8N_TOKEN` (o mesmo token é usado pelo Python).
+2. No `.env` da raiz do projeto, preencha `GEMINI_API_KEY` e `CADE_N8N_TOKEN` (o mesmo token é usado pelo Python).
 3. Rode o script:
 
 ```bash

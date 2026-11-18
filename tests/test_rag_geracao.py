@@ -4,8 +4,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from vagacerta.geracao import DadosConsulta, GeradorN8n, Orquestrador, validar
-from vagacerta.rag import BaseConhecimento, Resultado
+from cademinhaconsulta.geracao import DadosConsulta, GeradorN8n, Orquestrador, validar
+from cademinhaconsulta.rag import BaseConhecimento, Resultado
 
 DIA = date.today() + timedelta(days=4)
 
@@ -146,7 +146,7 @@ def test_ia_feliz_usa_mensagem_da_ia_e_nao_envia_nome(base):
     assert msg.fontes == ["base_conhecimento/ultrassom-abdome.md"]
     enviado = json.dumps(post.chamadas[0], default=str)
     assert "Josefa" not in enviado
-    assert post.chamadas[0]["headers"]["X-Vagacerta-Token"] == "tk"
+    assert post.chamadas[0]["headers"]["X-Cade-Token"] == "tk"
     assert post.chamadas[0]["json"]["schema"]["type"] == "OBJECT"
 
 

@@ -10,15 +10,15 @@ Gerado por `scripts/avaliar_mensagens.py --modo template`. 23 procedimentos escr
 | Preparo: sem preparo (correto) | 9/23 |
 | Mensagens escritas pela IA (resto: template) | 0/23 |
 | Nome do paciente enviado à API | não |
-| Latência mediana / máxima | 0 ms / 2 ms |
-| Maior SMS | 263 caracteres |
+| Latência mediana / máxima | 0 ms / 1 ms |
+| Maior SMS | 279 caracteres |
 
 ## Caso a caso
 
 | Procedimento | Esperado | Recuperado (score) | Usado | Classe | Válida | Gerado por |
 |---|---|---|---|---|---|---|
-| ULTRASSONOGRAFIA DE ABDOMEN SUPERIOR | ultrassom-abdome | ultrassom-abdome (0.823) | ultrassom-abdome | correto | sim | template |
-| RX DE MAO | raio-x | raio-x (0.31) | (nenhum) | omitido (erro seguro) | sim | template |
+| ULTRASSONOGRAFIA DE ABDOMEN SUPERIOR | ultrassom-abdome | ultrassom-abdome (0.824) | ultrassom-abdome | correto | sim | template |
+| RX DE MAO | raio-x | raio-x (0.311) | (nenhum) | omitido (erro seguro) | sim | template |
 | RADIOGRAFIA DE BACIA | raio-x | raio-x (0.536) | raio-x | correto | sim | template |
 | DOSAGEM DE GLICOSE POS PRANDIAL | glicemia-jejum | glicemia-jejum (0.369) | (nenhum) | omitido (erro seguro) | sim | template |
 | DOSAGEM DE COLESTEROL HDL | colesterol-triglicerides | colesterol-triglicerides (0.681) | colesterol-triglicerides | correto | sim | template |
@@ -48,14 +48,14 @@ Gerado por `scripts/avaliar_mensagens.py --modo template`. 23 procedimentos escr
 **SMS**
 
 ```
-Olá, Marilene! Vaga Certa: ULTRASSONOGRAFIA DE ABDOMEN SUPERIOR em sábado, 21/11, às 07:30, Policlínica Centro. Jejum de 6 a 8 horas antes do exame. Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa.
+Olá, Marilene! Cadê Minha Consulta: ULTRASSONOGRAFIA DE ABDOMEN SUPERIOR em segunda-feira, 23/11, às 07:30, Policlínica Centro. Jejum de 6 a 8 horas antes do exame. Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa.
 ```
 
 **App**
 
 ```
 Olá, Marilene! Sua vaga para ULTRASSONOGRAFIA DE ABDOMEN SUPERIOR está marcada:
-- Quando: sábado, 21/11, às 07:30
+- Quando: segunda-feira, 23/11, às 07:30
 - Onde: Policlínica Centro, Rua Exemplo, 100
 Como se preparar:
 - Jejum de 6 a 8 horas antes do exame. Pequenos goles de água podem ser liberados; confirme com a unidade.
@@ -72,14 +72,14 @@ Avisos: sem credencial de IA configurada; usado template
 **SMS**
 
 ```
-Olá, Marilene! Vaga Certa: RX DE MAO em sábado, 21/11, às 08:30, Policlínica Centro. Siga as orientações do pedido médico e tire dúvidas na unidade. Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa.
+Olá, Marilene! Cadê Minha Consulta: RX DE MAO em segunda-feira, 23/11, às 08:30, Policlínica Centro. Siga as orientações do pedido médico e tire dúvidas na unidade. Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa.
 ```
 
 **App**
 
 ```
 Olá, Marilene! Sua vaga para RX DE MAO está marcada:
-- Quando: sábado, 21/11, às 08:30
+- Quando: segunda-feira, 23/11, às 08:30
 - Onde: Policlínica Centro, Rua Exemplo, 100
 Siga as orientações de preparo do pedido médico. Em caso de dúvida, fale com a unidade.
 Responda SIM para confirmar. Se não puder ir, responda NAO: a vaga vai na hora para a próxima pessoa da fila.
@@ -92,14 +92,14 @@ Avisos: sem credencial de IA configurada; usado template; orientação recuperad
 **SMS**
 
 ```
-Olá, Marilene! Vaga Certa: RADIOGRAFIA DE BACIA em sábado, 21/11, às 09:30, Policlínica Centro. Em geral não precisa de preparo nem de jejum. Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa.
+Olá, Marilene! Cadê Minha Consulta: RADIOGRAFIA DE BACIA em segunda-feira, 23/11, às 09:30, Policlínica Centro. Em geral não precisa de preparo nem de jejum. Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa.
 ```
 
 **App**
 
 ```
 Olá, Marilene! Sua vaga para RADIOGRAFIA DE BACIA está marcada:
-- Quando: sábado, 21/11, às 09:30
+- Quando: segunda-feira, 23/11, às 09:30
 - Onde: Policlínica Centro, Rua Exemplo, 100
 Como se preparar:
 - Em geral não precisa de preparo nem de jejum.
@@ -115,14 +115,14 @@ Avisos: sem credencial de IA configurada; usado template
 **SMS**
 
 ```
-Olá, Marilene! Vaga Certa: MAPA 24 HORAS em sábado, 21/11, às 08:30, Policlínica Centro. Siga as orientações do pedido médico e tire dúvidas na unidade. Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa.
+Olá, Marilene! Cadê Minha Consulta: MAPA 24 HORAS em segunda-feira, 23/11, às 08:30, Policlínica Centro. Siga as orientações do pedido médico e tire dúvidas na unidade. Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa.
 ```
 
 **App**
 
 ```
 Olá, Marilene! Sua vaga para MAPA 24 HORAS está marcada:
-- Quando: sábado, 21/11, às 08:30
+- Quando: segunda-feira, 23/11, às 08:30
 - Onde: Policlínica Centro, Rua Exemplo, 100
 Siga as orientações de preparo do pedido médico. Em caso de dúvida, fale com a unidade.
 Responda SIM para confirmar. Se não puder ir, responda NAO: a vaga vai na hora para a próxima pessoa da fila.
@@ -135,14 +135,14 @@ Avisos: sem credencial de IA configurada; usado template
 **SMS**
 
 ```
-Olá, Marilene! Vaga Certa: seu atendimento em sábado, 21/11, às 09:30, Policlínica Centro. Siga as orientações do pedido médico e tire dúvidas na unidade. Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa.
+Olá, Marilene! Cadê Minha Consulta: seu atendimento em segunda-feira, 23/11, às 09:30, Policlínica Centro. Siga as orientações do pedido médico e tire dúvidas na unidade. Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa.
 ```
 
 **App**
 
 ```
 Olá, Marilene! Sua vaga para seu atendimento está marcada:
-- Quando: sábado, 21/11, às 09:30
+- Quando: segunda-feira, 23/11, às 09:30
 - Onde: Policlínica Centro, Rua Exemplo, 100
 Siga as orientações de preparo do pedido médico. Em caso de dúvida, fale com a unidade.
 Responda SIM para confirmar. Se não puder ir, responda NAO: a vaga vai na hora para a próxima pessoa da fila.

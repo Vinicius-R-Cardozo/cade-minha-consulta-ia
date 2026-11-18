@@ -26,7 +26,7 @@ from datetime import date, time as hora_t
 from . import config
 from .rag import Documento, Resultado, normalizar
 
-log = logging.getLogger("vagacerta.geracao")
+log = logging.getLogger("cademinhaconsulta.geracao")
 
 LIMITE_SMS = 320
 LIMITE_APP = 900
@@ -61,7 +61,7 @@ SUSPEITOS = [
     r"(fa[cç]a|efetue|realize) (o |um )?(pagamento|dep[oó]sito)",
 ]
 
-SISTEMA = """Você escreve mensagens do Vaga Certa, serviço público que lembra cidadãos de consultas e exames do SUS.
+SISTEMA = """Você escreve mensagens do Cadê Minha Consulta, serviço público que lembra cidadãos de consultas e exames do SUS.
 
 Primeiro, verifique: as orientações do bloco <orientacoes> são do MESMO procedimento de <consulta>?
 Mesmo nome parecido pode ser outro exame (tomografia não é ultrassom; transvaginal não é pélvico via abdominal;
@@ -224,11 +224,11 @@ class GeradorTemplate:
         destaque = (re.split(r"(?<=[.!?])\s", preparo[0], maxsplit=1)[0] if preparo
                     else "Siga as orientações do pedido médico e tire dúvidas na unidade.")
         sms = (
-            f"Olá, {{nome}}! Vaga Certa: {c.procedimento} em {quando}, {c.unidade}. "
+            f"Olá, {{nome}}! Cadê Minha Consulta: {c.procedimento} em {quando}, {c.unidade}. "
             f"{destaque} Responda SIM para confirmar ou NAO para liberar a vaga para outra pessoa."
         )
         if len(sms) > 300:
-            sms = (f"Olá, {{nome}}! Vaga Certa: {c.procedimento} em {quando}, {c.unidade}. "
+            sms = (f"Olá, {{nome}}! Cadê Minha Consulta: {c.procedimento} em {quando}, {c.unidade}. "
                    "Responda SIM para confirmar ou NAO para liberar a vaga.")
         linhas = [f"Olá, {{nome}}! Sua vaga para {c.procedimento} está marcada:",
                   f"- Quando: {quando}", f"- Onde: {c.unidade}" + (f", {c.endereco}" if c.endereco else "")]
@@ -252,7 +252,7 @@ class ErroIA(RuntimeError):
 
 
 class GeradorN8n:
-    """Gera a mensagem pelo workflow do n8n (n8n/vagacerta-mensagem.json), que chama o Google Gemini.
+    """Gera a mensagem pelo workflow do n8n (n8n/cade-minha-consulta-mensagem.json), que chama o Google Gemini.
 
     O Python manda o prompt e o schema de saída; o n8n guarda a chave do Gemini, faz a chamada e devolve
     {"ok": true, "modelo": ..., "resultado": {...}} ou {"ok": false, "erro": ...}.
@@ -268,7 +268,7 @@ class GeradorN8n:
 
     def _chamar(self, prompt: str) -> dict:
         corpo = {"sistema": SISTEMA, "prompt": prompt, "schema": SCHEMA_GEMINI}
-        resp = self._post(self.url, json=corpo, headers={"X-Vagacerta-Token": self.token},
+        resp = self._post(self.url, json=corpo, headers={"X-Cade-Token": self.token},
                           timeout=config.N8N_TIMEOUT_S)
         if resp.status_code != 200:
             raise ErroIA(f"n8n respondeu HTTP {resp.status_code}")
@@ -304,7 +304,7 @@ class Orquestrador:
             msg, corresponde = self.ia.gerar(c, docs)
         except Exception as e:  # rede, chave inválida, recusa, JSON quebrado: o cidadão não pode ficar sem mensagem
             log.warning("falha na IA generativa: %s", e)
-            avisos.append(f"IA indisponível ({type(e).__name__}); usado template")
+            avisos.append(f"IA indisponível ({type(e).__name__}: {str(e)[:160]}); usado template")
             return None
         problemas = validar(msg.sms, msg.app, c)
         if docs and not corresponde:

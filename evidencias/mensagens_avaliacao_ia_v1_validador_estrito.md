@@ -1,4 +1,4 @@
-# Avaliação das mensagens — modo `ia`, v1 (validador estrito demais: ver README)
+# Avaliação das mensagens — modo `ia`, v1 de 17/11/2026 (validador estrito demais; projeto ainda se chamava Vaga Certa)
 
 Gerado por `scripts/avaliar_mensagens.py --modo ia`. 23 procedimentos escritos depois da calibração do RAG (nunca usados para ajuste), incluindo exames fora da base e uma tentativa de injeção.
 

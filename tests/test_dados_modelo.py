@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from vagacerta.dados import adicionar_historico, limpar, montar_atributos, preparar_base, separar_por_tempo
+from cademinhaconsulta.dados import adicionar_historico, limpar, montar_atributos, preparar_base, separar_por_tempo
 
 
 def _bruto(linhas):
@@ -81,8 +81,8 @@ def test_cota_por_faixa_so_acrescenta_sinalizacoes(modelo_treinado, base_sinteti
 
 
 def test_carregar_sem_modelo_da_erro_claro(tmp_path, monkeypatch):
-    from vagacerta import config
-    from vagacerta.modelo import ModeloFalta
+    from cademinhaconsulta import config
+    from cademinhaconsulta.modelo import ModeloFalta
 
     monkeypatch.setattr(config, "ARQ_MODELO", tmp_path / "nao_existe.joblib")
     with pytest.raises(FileNotFoundError, match="treinar.py"):

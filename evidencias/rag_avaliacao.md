@@ -66,9 +66,9 @@ Limiar baixo acerta mais exames, mas manda preparo de outro exame quando o proce
 | mamografia diagnostica | mamografia | mamografia | mamografia (0.502) | sim |
 | rx de torax | raio-x | raio-x | raio-x (0.305) | sim |
 | radiografia de coluna lombo-sacra | raio-x | raio-x | raio-x (0.419) | sim |
-| glicose em jejum | glicemia-jejum | glicemia-jejum | glicemia-jejum (0.757) | sim |
+| glicose em jejum | glicemia-jejum | glicemia-jejum | glicemia-jejum (0.758) | sim |
 | curva glicemica | glicemia-jejum | glicemia-jejum | glicemia-jejum (0.779) | sim |
-| lipidograma | colesterol-triglicerides | colesterol-triglicerides | colesterol-triglicerides (0.657) | sim |
+| lipidograma | colesterol-triglicerides | colesterol-triglicerides | colesterol-triglicerides (0.656) | sim |
 | HDL colesterol | colesterol-triglicerides | colesterol-triglicerides | colesterol-triglicerides (0.693) | sim |
 | dosagem de creatinina | exames-de-sangue | exames-de-sangue | exames-de-sangue (0.621) | sim |
 | hemograma | exames-de-sangue | exames-de-sangue | exames-de-sangue (0.692) | sim |
@@ -76,18 +76,18 @@ Limiar baixo acerta mais exames, mas manda preparo de outro exame quando o proce
 | parasitologico | exame-fezes | exame-fezes | exame-fezes (0.798) | sim |
 | sangue oculto nas fezes | exame-fezes | exame-fezes | exame-fezes (0.582) | sim |
 | consulta em neurologia | consulta-especialista | consulta-especialista | consulta-especialista (0.671) | sim |
-| primeira consulta dermatologia | consulta-especialista | consulta-especialista | consulta-especialista (0.499) | sim |
-| quero liberar minha vaga | confirmar-liberar-vaga | confirmar-liberar-vaga | confirmar-liberar-vaga (0.518) | sim |
+| primeira consulta dermatologia | consulta-especialista | consulta-especialista | consulta-especialista (0.5) | sim |
+| quero liberar minha vaga | confirmar-liberar-vaga | confirmar-liberar-vaga | confirmar-liberar-vaga (0.526) | sim |
 | ULTRASSONOGRAFIA TRANSVAGINAL | (nada) | ultrassom-abdome | ultrassom-abdome (0.452) | **não** |
 | ultrassom com doppler de membros inferiores | (nada) | (nada) | ultrassom-abdome (0.298) | sim |
 | ressonancia de coluna | (nada) | (nada) | glicemia-jejum (0.057) | sim |
 | tomografia de abdome | (nada) | ultrassom-abdome | ultrassom-abdome (0.466) | **não** |
-| holter 24 horas | (nada) | (nada) | colesterol-triglicerides (0.03) | sim |
+| holter 24 horas | (nada) | (nada) | ultrassom-pelvico-rins (0.03) | sim |
 | audiometria | (nada) | (nada) | teste-ergometrico (0.173) | sim |
 | cintilografia | (nada) | (nada) | raio-x (0.145) | sim |
 | biopsia de prostata | (nada) | ultrassom-pelvico-rins | ultrassom-pelvico-rins (0.401) | **não** |
 | papanicolau | (nada) | (nada) | exame-fezes (0.032) | sim |
-| teste do pezinho | (nada) | teste-ergometrico | teste-ergometrico (0.41) | **não** |
+| teste do pezinho | (nada) | teste-ergometrico | teste-ergometrico (0.404) | **não** |
 
 ## Caso a caso: calibração
 
@@ -116,9 +116,9 @@ Limiar baixo acerta mais exames, mas manda preparo de outro exame quando o proce
 | glicemia de jejum | glicemia-jejum | glicemia-jejum | glicemia-jejum (0.771) | sim |
 | DOSAGEM DE HEMOGLOBINA GLICOSILADA | glicemia-jejum | glicemia-jejum | glicemia-jejum (0.467) | sim |
 | DOSAGEM DE COLESTEROL TOTAL | colesterol-triglicerides | colesterol-triglicerides | colesterol-triglicerides (0.643) | sim |
-| DOSAGEM DE TRIGLICERIDEOS | colesterol-triglicerides | colesterol-triglicerides | colesterol-triglicerides (0.767) | sim |
+| DOSAGEM DE TRIGLICERIDEOS | colesterol-triglicerides | colesterol-triglicerides | colesterol-triglicerides (0.768) | sim |
 | HEMOGRAMA COMPLETO | exames-de-sangue | exames-de-sangue | exames-de-sangue (0.703) | sim |
-| DOSAGEM DE TSH | exames-de-sangue | exames-de-sangue | exames-de-sangue (0.556) | sim |
+| DOSAGEM DE TSH | exames-de-sangue | exames-de-sangue | exames-de-sangue (0.555) | sim |
 | exame de sangue | exames-de-sangue | exames-de-sangue | exames-de-sangue (0.661) | sim |
 | ANALISE DE CARACTERES FISICOS, ELEMENTOS E SEDIMENTO DA URINA | exame-urina | exame-urina | exame-urina (0.538) | sim |
 | urina tipo 1 | exame-urina | exame-urina | exame-urina (0.724) | sim |
@@ -127,7 +127,7 @@ Limiar baixo acerta mais exames, mas manda preparo de outro exame quando o proce
 | CONSULTA EM ENDOCRINOLOGIA | consulta-especialista | consulta-especialista | consulta-especialista (0.677) | sim |
 | consulta cardiologista | consulta-especialista | consulta-especialista | consulta-especialista (0.759) | sim |
 | CONSULTA MEDICA EM ATENCAO ESPECIALIZADA - ORTOPEDIA | consulta-especialista | consulta-especialista | consulta-especialista (0.698) | sim |
-| como desmarcar minha consulta | confirmar-liberar-vaga | confirmar-liberar-vaga | confirmar-liberar-vaga (0.699) | sim |
+| como desmarcar minha consulta | confirmar-liberar-vaga | confirmar-liberar-vaga | confirmar-liberar-vaga (0.731) | sim |
 | RESSONANCIA MAGNETICA DE JOELHO | (nada) | (nada) | glicemia-jejum (0.063) | sim |
 | TOMOGRAFIA COMPUTADORIZADA DE CRANIO | (nada) | (nada) | mamografia (0.126) | sim |
 | DENSITOMETRIA OSSEA | (nada) | (nada) | teste-ergometrico (0.15) | sim |
