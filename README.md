@@ -144,7 +144,7 @@ python scripts/avaliar_rag.py
 python scripts/avaliar_mensagens.py --modo template
 python scripts/avaliar_mensagens.py --modo ia
 python -m pytest
-uvicorn vagacerta.api:app --app-dir src --port 8000
+powershell -ExecutionPolicy Bypass -File scripts/api_iniciar.ps1
 ```
 
 O modo `ia` exige o n8n rodando com a chave do Gemini. Com a API no ar, a documentação interativa fica em http://localhost:8000/docs.
