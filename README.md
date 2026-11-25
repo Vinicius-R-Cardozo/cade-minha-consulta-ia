@@ -89,7 +89,7 @@ Fluxo da mensagem, passo a passo:
 2. O RAG procura o documento de preparo. Abaixo do score mínimo (0,30), nada é devolvido.
 3. O Python monta o prompt (dados da consulta + orientação recuperada, nunca o nome) e o envia ao **webhook do n8n**. O workflow confere o token, chama o **Gemini** com a chave guardada só no n8n e pede saída em JSON com schema fixo: SMS, texto do app, itens usados e se a orientação **é mesmo do procedimento**. Um nó de código trata erro HTTP, bloqueio de segurança e JSON inválido antes de responder.
 4. A validação confere data, hora, SIM/NAO, limites de tamanho, termos de diagnóstico e de golpe, e se **cada item usado existe no documento**.
-5. Se algo falhar (n8n desligado, sem chave, sem rede, bloqueio, JSON inválido, validação), entra o template. Ele só usa preparo específico quando a recuperação tem confiança alta (score ≥ 0,50).
+5. Se o Gemini responder "503 alta demanda" ou "429" (comum no plano gratuito), o Python tenta mais uma vez. Se algo ainda falhar (n8n desligado, sem chave, sem rede, bloqueio, JSON inválido, validação), entra o template. Ele só usa preparo específico quando a recuperação tem confiança alta (score ≥ 0,50).
 6. O nome é inserido no lugar do marcador `{nome}` e o texto volta ao backend.
 
 ## Tecnologias e justificativas
@@ -259,7 +259,7 @@ desvios do workflow: erro HTTP 500, bloqueio de segurança (`SAFETY`), JSON inv�
 
 ### Testes automatizados
 
-`python -m pytest`: 55 testes. Eles cobrem:
+`python -m pytest`: 58 testes. Eles cobrem:
 
 - **Dados e modelo:** limpeza, **histórico sem vazamento**, divisão temporal, modelo melhor que o baseline e a cota por faixa etária só acrescentando sinalizações.
 - **RAG:** exames encontrados e exames que não podem ser inventados.

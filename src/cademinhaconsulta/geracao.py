@@ -258,16 +258,21 @@ class GeradorN8n:
     {"ok": true, "modelo": ..., "resultado": {...}} ou {"ok": false, "erro": ...}.
     """
 
-    def __init__(self, url: str | None = None, token: str | None = None, post=None):
+    # Erros passageiros do Gemini gratuito ("503 alta demanda", "429 cota"): vale tentar de novo antes do template.
+    ERROS_PASSAGEIROS = ("HTTP 503", "HTTP 429")
+
+    def __init__(self, url: str | None = None, token: str | None = None, post=None, tentativas: int = 2,
+                 pausa_s: float = 1.5):
         import httpx
 
         self.url = url or config.N8N_WEBHOOK_URL
         self.token = token if token is not None else config.N8N_TOKEN
         self._post = post or httpx.post
+        self.tentativas = max(1, tentativas)
+        self.pausa_s = pausa_s
         self.nome = "n8n+gemini"
 
-    def _chamar(self, prompt: str) -> dict:
-        corpo = {"sistema": SISTEMA, "prompt": prompt, "schema": SCHEMA_GEMINI}
+    def _chamar_uma_vez(self, corpo: dict) -> dict:
         resp = self._post(self.url, json=corpo, headers={"X-Cade-Token": self.token},
                           timeout=config.N8N_TIMEOUT_S)
         if resp.status_code != 200:
@@ -276,6 +281,19 @@ class GeradorN8n:
         if not dados.get("ok"):
             raise ErroIA(f"n8n/Gemini: {dados.get('erro', 'erro desconhecido')}")
         return dados
+
+    def _chamar(self, prompt: str) -> dict:
+        corpo = {"sistema": SISTEMA, "prompt": prompt, "schema": SCHEMA_GEMINI}
+        for tentativa in range(1, self.tentativas + 1):
+            try:
+                return self._chamar_uma_vez(corpo)
+            except ErroIA as e:
+                passageiro = any(codigo in str(e) for codigo in self.ERROS_PASSAGEIROS)
+                if not passageiro or tentativa == self.tentativas:
+                    raise
+                log.info("Gemini congestionado (%s); tentando de novo", e)
+                time.sleep(self.pausa_s)
+        raise ErroIA("sem tentativas")  # não chega aqui
 
     def gerar(self, c: DadosConsulta, docs: list[Documento]) -> tuple[Mensagem, bool]:
         dados = self._chamar(montar_prompt(c, docs))

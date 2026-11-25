@@ -195,3 +195,45 @@ def test_falhas_da_ia_sempre_entregam_mensagem(base, post):
     assert msg.gerado_por == "template"
     assert msg.sms.startswith("Olá, Rita!")
     assert msg.avisos
+
+
+class N8nSequencia:
+    """Devolve, em ordem, uma resposta por chamada (para testar a nova tentativa)."""
+
+    def __init__(self, *respostas):
+        self.respostas = list(respostas)
+        self.chamadas = 0
+
+    def __call__(self, url, json=None, headers=None, timeout=None):
+        corpo = self.respostas[min(self.chamadas, len(self.respostas) - 1)]
+        self.chamadas += 1
+        return SimpleNamespace(status_code=200, json=lambda: corpo)
+
+
+def _orq_seq(post):
+    return Orquestrador(gerador_ia=GeradorN8n(url="http://n8n.teste/webhook/x", token="tk", post=post, pausa_s=0))
+
+
+def test_gemini_congestionado_tenta_de_novo_e_usa_a_ia(base):
+    post = N8nSequencia({"ok": False, "erro": "Gemini HTTP 503: high demand"},
+                        {"ok": True, "modelo": "gemini-teste", "resultado": resposta_ia()})
+    c = consulta()
+    msg = _orq_seq(post).gerar(c, base.buscar(c.procedimento, k=1))
+    assert post.chamadas == 2
+    assert msg.gerado_por == "gemini:gemini-teste"
+
+
+def test_erro_que_nao_e_passageiro_nao_repete(base):
+    post = N8nSequencia({"ok": False, "erro": "Gemini HTTP 400: API key not valid"})
+    c = consulta()
+    msg = _orq_seq(post).gerar(c, base.buscar(c.procedimento, k=1))
+    assert post.chamadas == 1
+    assert msg.gerado_por == "template"
+
+
+def test_congestionado_nas_duas_tentativas_cai_no_template(base):
+    post = N8nSequencia({"ok": False, "erro": "Gemini HTTP 503: high demand"})
+    c = consulta()
+    msg = _orq_seq(post).gerar(c, base.buscar(c.procedimento, k=1))
+    assert post.chamadas == 2
+    assert msg.gerado_por == "template"
